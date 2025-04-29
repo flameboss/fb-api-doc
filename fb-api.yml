@@ -1,0 +1,1269 @@
+asyncapi: 3.0.0
+info:
+  title: Flame Boss MQTT API
+  version: 1.0.1
+  description: |-
+    April 29, 2025
+    
+    API for interacting with Flame Boss temperature controllers via MQTT.
+    
+    Get the latest version of this document at https://github.com/flameboss/fb-api-doc
+
+    Sign-up and login at myflameboss.com and visit your dev page to obtain your MQTT credentials:
+
+    https://myflameboss.com/users/dev
+
+    We use the following terms:
+
+    - The **target** or **device** is the controller or sensor.
+    - An **uplink** is a message published by the target for the cloud or your application.
+    - A **downlink** is a message published by the cloud or by your application to the target.
+
+    Most uplinks are published on topic `flameboss/<device_id>/send/data`.
+    
+    Public cook data is published on topic `flameboss/<device_id>/send/open`.
+    
+    (Subscribe to both send topics if the device is added to your account; otherwise just subscribe to the open send topic.)
+    
+    All downlinks from your app to the controller are published on topic `flameboss/<device_id>/recv`.
+
+    Every message is a JSON object with at least one property with key "name".
+
+    The controller sends relevant messages when the settings or state changes.
+
+    An app can request updates immediately by sending messages with only the name property.
+    For example, to request an immediate update on temperatures, send `{"name":"temps"}` to `flameboss/<device_id>/recv`.
+
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
+    url: 'https://creativecommons.org/licenses/by-nc-sa/4.0/'
+
+defaultContentType: application/json
+
+servers:
+  production:
+    host: 'myflameboss.com'
+    protocol: mqtts
+    description: The production Flame Boss MQTT broker on the default secure port 8883. (Some devices use non-TLS connections on port 1883.)
+
+channels:
+  flameboss/{deviceId}/send/open:
+    description: Public messages sent from the target to subscribers to support shared cooks
+    parameters:
+      deviceId:
+        description: The integer unique identifier of the Flame Boss device
+    servers:
+      - $ref: '#/servers/production'
+    messages:
+      timeUplink:
+        $ref: '#/components/messages/timeUplink'
+      tempsUplink:
+        $ref: '#/components/messages/tempsUplink'
+
+  flameboss/{deviceId}/send/data:
+    description: Messages sent from the target to subscribers (uplinks)
+    parameters:
+      deviceId:
+        description: The integer unique identifier of the Flame Boss device
+    servers:
+      - $ref: '#/servers/production'
+    messages:
+      timeUplink:
+        $ref: '#/components/messages/timeUplink'
+      dnsUplink:
+        $ref: '#/components/messages/dnsUplink'
+      ipUplink:
+        $ref: '#/components/messages/ipUplink'
+      idUplink:
+        $ref: '#/components/messages/idUplink'
+      tempsUplink:
+        $ref: '#/components/messages/tempsUplink'
+      setTempUplink:
+        $ref: '#/components/messages/setTempUplink'
+      wifiUplink:
+        $ref: '#/components/messages/wifiUplink'
+      wifiCxUplink:
+        $ref: '#/components/messages/wifiCxUplink'
+      meatAlarmUplink:
+        $ref: '#/components/messages/meatAlarmUplink'
+      setTempLimitsUplink:
+        $ref: '#/components/messages/setTempLimitsUplink'
+      pitAlarmUplink:
+        $ref: '#/components/messages/pitAlarmUplink'
+      labelsUplink:
+        $ref: '#/components/messages/ipUplink'
+      soundUplink:
+        $ref: '#/components/messages/soundUplink'
+      pidUplink:
+        $ref: '#/components/messages/ipUplink'
+      gpidUplink:
+        $ref: '#/components/messages/ipUplink'
+      openPitUplink:
+        $ref: '#/components/messages/openPitUplink'
+      stepUplink:
+        $ref: '#/components/messages/stepUplink'
+      deviceTempUplink:
+        $ref: '#/components/messages/deviceTempUplink'
+      dcInputUplink:
+        $ref: '#/components/messages/dcInputUplink'
+      meatAlarmTriggeredUplink:
+        $ref: '#/components/messages/meatAlarmTriggeredUplink'
+      pitAlarmActiveUplink:
+        $ref: '#/components/messages/pitAlarmActiveUplink'
+      pitAlarmTriggeredUplink:
+        $ref: '#/components/messages/pitAlarmTriggeredUplink'
+      ventAdviceUplink:
+        $ref: '#/components/messages/ventAdviceUplink'
+      openedUplink:
+        $ref: '#/components/messages/openedUplink'
+      closedUplink:
+        $ref: '#/components/messages/closedUplink'
+      probeOvertempUplink:
+        $ref: '#/components/messages/probeOvertempUplink'
+      deviceOvertempUplink:
+        $ref: '#/components/messages/deviceOvertempUplink'
+      wifiScanUplink:
+        $ref: '#/components/messages/wifiScanUplink'
+      bleCxUplink:
+        $ref: '#/components/messages/bleCxUplink'
+
+  flameboss/{deviceId}/recv:
+    parameters:
+      deviceId:
+        description: The integer unique identifier of the Flame Boss target
+      summary: Messages sent to the target (downlinks)
+      description: |
+        Publish messages to this topic to control the target or request data from the target.
+        To request updates, send a message with only the name property.
+        For example: `{"name": "temps"}`
+        To request update of all settings and readings, publish a sync message to
+        this topic.
+        For example: '{"name": "sync"}'
+    servers:
+      - $ref: '#/servers/production'
+    messages:
+      timeDownlink:
+        $ref: '#/components/messages/timeDownlink'
+      dnsDownlink:
+        $ref: '#/components/messages/dnsDownlink'
+      ipDownlink:
+        $ref: '#/components/messages/ipDownlink'
+      idDownlink:
+        $ref: '#/components/messages/idDownlink'
+      setTempDownlink:
+        $ref: '#/components/messages/setTempDownlink'
+      wifiDownlink:
+        $ref: '#/components/messages/wifiDownlink'
+      bleCxDownlink:
+        $ref: '#/components/messages/bleCxDownlink'
+      meatAlarmDownlink:
+        $ref: '#/components/messages/meatAlarmDownlink'
+      pitAlarmDownlink:
+        $ref: '#/components/messages/pitAlarmDownlink'
+      labelsDownlink:
+        $ref: '#/components/messages/labelsDownlink'
+      soundDownlink:
+        $ref: '#/components/messages/soundDownlink'
+      pidDownlink:
+        $ref: '#/components/messages/pidDownlink'
+      gpidDownlink:
+        $ref: '#/components/messages/gpidDownlink'
+      openPitDownlink:
+        $ref: '#/components/messages/openPitDownlink'
+
+components:
+  messages:
+    timeUplink:
+      summary: Device current time
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [time]
+          epoch:
+            type: integer
+            description: Time in Unix epoch scale
+          ms:
+            type: integer
+            description: Fraction of second in ms
+        required:
+          - name
+          - epoch
+        example:
+          name: "time"
+          epoch: 1648224000
+          ms: 500
+
+    timeDownlink:
+      summary: Set device time
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [time]
+          epoch:
+            type: integer
+            description: Time in Unix epoch scale
+          ms:
+            type: integer
+            description: Fraction of second in ms
+        required:
+          - name
+        example:
+          name: "time"
+          epoch: 1648224000
+          ms: 500
+
+    dnsUplink:
+      summary: DNS configuration information
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [dns]
+          dhcp:
+            type: boolean
+          ips:
+            type: array
+            items:
+              type: string
+            description: Array of strings of IP addresses, all but first element may be ignored
+        required:
+          - name
+          - dhcp
+          - ips
+        example:
+          name: "dns"
+          dhcp: true
+          ips: ["192.168.1.100"]
+
+    dnsDownlink:
+      summary: Set DNS configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [dns]
+          dhcp:
+            type: boolean
+          ips:
+            type: array
+            items:
+              type: string
+            description: |-
+              Array of strings of IP addresses.
+              All but first element may be ignored if the device
+              does not support more than one DNS address.
+              This property is required if dhcp is false, and optional-and-ignored if dhcp is true.
+        required:
+          - name
+          - dhcp
+        example:
+          name: "dns"
+          dhcp: true
+
+    # IP message
+    ipUplink:
+      summary: IP configuration information
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [ip]
+          mode:
+            type: string
+            enum: [manual, dhcp]
+          ip:
+            type: string
+            description: IP address
+          netmask:
+            type: string
+            description: Netmask
+          gateway:
+            type: string
+            description: Gateway IP address
+        required:
+          - name
+          - mode
+          - ip
+          - netmask
+          - gateway
+        example:
+          name: "ip"
+          mode: "dhcp"
+          ip: "192.168.1.100"
+          netmask: "255.255.255.0"
+          gateway: "192.168.1.1"
+
+    ipDownlink:
+      summary: Set IP configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [ip]
+          mode:
+            type: string
+            enum: [manual, dhcp]
+          ip:
+            type: string
+            description: IP address
+          netmask:
+            type: string
+            description: Netmask
+          gateway:
+            type: string
+            description: Gateway IP address
+        required:
+          - name
+          - mode
+          - ip
+          - netmask
+          - gateway
+        example:
+          name: "ip"
+          mode: "dhcp"
+          ip: "192.168.1.100"
+          netmask: "255.255.255.0"
+          gateway: "192.168.1.1"
+
+    # ID message
+    idUplink:
+      summary: Device identification information
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [id]
+          hw_id:
+            type: integer
+            description: Device type ID
+          device_id:
+            type: integer
+            description: Flame Boss device ID
+          uid:
+            type: string
+            description: Base64 encoded UID
+          pin:
+            type: integer
+            description: Optional, only sent when device is in AP mode
+        required:
+          - name
+          - hw_id
+          - device_id
+          - uid
+        example:
+          name: "id"
+          hw_id: 123
+          device_id: 456
+          uid: "ABC123DEF456=="
+
+    idDownlink:
+      summary: Request device identification information
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [id]
+        required:
+          - name
+        example:
+          name: "id"
+
+    # Temps message
+    tempsUplink:
+      summary: Temperature information
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [temps]
+          cook_id:
+            type: integer
+          sec:
+            type: integer
+            description: Epoch seconds of data point, might be earlier than ts if it was logged on device
+          temps:
+            type: array
+            items:
+              type: integer
+            description: Array of integers, temperatures at sec in configured temp scale
+          set_temp:
+            type: integer
+          blower:
+            type: integer
+            description: Blower duty cycle in .01% scale, 10000 = 100%
+        required:
+          - name
+          - cook_id
+          - sec
+          - temps
+          - set_temp
+          - blower
+        example:
+          name: "temps"
+          cook_id: 12345
+          sec: 1648224000
+          temps: [225, 180, 170, 0]
+          set_temp: 225
+          blower: 2500
+
+    # Set Temp message
+    setTempUplink:
+      summary: Set temperature limits
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [set_temp]
+          min:
+            type: integer
+          max:
+            type: integer
+        required:
+          - name
+          - min
+          - max
+        example:
+          name: "set_temp"
+          min: 150
+          max: 500
+
+    setTempDownlink:
+      summary: Set device temperature
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [set_temp]
+          value:
+            type: integer
+        required:
+          - name
+          - value
+        example:
+          name: "set_temp"
+          value: 250
+
+    # WiFi message
+    wifiUplink:
+      summary: WiFi configuration information
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [wifi]
+          index:
+            type: integer
+            enum: [0, 1]
+            description: Omitting index is equivalent to index = 0
+          ssid:
+            type: string
+          key:
+            type: string
+            description: May be omitted on some channels for security policy
+        required:
+          - name
+          - ssid
+          - key
+        example:
+          name: "wifi"
+          index: 0
+          ssid: "MyWifiNetwork"
+          key: "my-wifi-pw"
+
+    wifiCxUplink:
+      summary: WiFi connection information
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [wifi_cx]
+          connected:
+            type: boolean
+            description: wifi is connected to an access point
+        required:
+          - name
+          - connected
+        example:
+          name: "wifi_cx"
+          connected: true
+
+    wifiDownlink:
+      summary: Set WiFi configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [wifi]
+          index:
+            type: integer
+            enum: [0, 1]
+            description: Omitting index is equivalent to index = 0
+          ssid:
+            type: string
+          key:
+            type: string
+        required:
+          - name
+          - ssid
+        example:
+          name: "wifi"
+          index: 0
+          ssid: "MyWifiNetwork"
+          key: "wifi-password"
+
+    # BLE Connection message
+    bleCxUplink:
+      summary: BLE connection status
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [ble_cx]
+          connected:
+            type: boolean
+        required:
+          - name
+          - connected
+        example:
+          name: "ble_cx"
+          connected: true
+
+    # BLE Connection message
+    bleCxDownlink:
+      summary: Get the status of the BLE interface
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [ble_cx]
+        required:
+          - name
+        example:
+          name: "ble_cx"
+
+    # Meat Alarm message
+    meatAlarmUplink:
+      summary: Meat alarm configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [meat_alarm]
+          sensor:
+            type: integer
+            minimum: 1
+            maximum: 3
+          action:
+            type: string
+            enum: [off, on, keep_warm]
+          done_temp:
+            type: integer
+          warm_temp:
+            type: integer
+        required:
+          - name
+          - sensor
+          - action
+          - done_temp
+          - warm_temp
+        example:
+          name: "meat_alarm"
+          sensor: 1
+          action: "on"
+          done_temp: 203
+          warm_temp: 170
+
+    meatAlarmDownlink:
+      summary: Set meat alarm configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [meat_alarm]
+          sensor:
+            type: integer
+            minimum: 1
+            maximum: 3
+          action:
+            type: string
+            enum: [off, on, keep_warm]
+          done_temp:
+            type: integer
+          warm_temp:
+            type: integer
+        required:
+          - name
+          - sensor
+          - action
+          - done_temp
+          - warm_temp
+        example:
+          name: "meat_alarm"
+          sensor: 1
+          action: "on"
+          done_temp: 203
+          warm_temp: 170
+
+    # Set Temp Limits message
+    setTempLimitsUplink:
+      summary: Temperature limit settings
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [set_temp_limits]
+          min:
+            type: integer
+          max:
+            type: integer
+        required:
+          - name
+          - min
+          - max
+        example:
+          name: "set_temp_limits"
+          min: 150
+          max: 500
+
+    # Pit Alarm message
+    pitAlarmUplink:
+      summary: Pit alarm configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [pit_alarm]
+          enabled:
+            type: boolean
+          range:
+            type: integer
+        required:
+          - name
+          - enabled
+          - range
+        example:
+          name: "pit_alarm"
+          enabled: true
+          range: 25
+
+    pitAlarmDownlink:
+      summary: Set pit alarm configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [pit_alarm]
+          enabled:
+            type: boolean
+          range:
+            type: integer
+        required:
+          - name
+          - enabled
+          - range
+        example:
+          name: "pit_alarm"
+          enabled: true
+          range: 25
+
+    # Labels message
+    labelsUplink:
+      summary: Probe labels
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [labels]
+          values:
+            type: array
+            items:
+              type: string
+            maxItems: 4
+            description: Array of 4 strings, max 12 char each
+        required:
+          - name
+          - values
+        example:
+          name: "labels"
+          values: ["Pit", "Brisket", "Butt", "Turkey"]
+
+    labelsDownlink:
+      summary: Set probe labels
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [labels]
+          values:
+            type: array
+            items:
+              type: string
+            maxItems: 4
+            description: Array of 4 strings, max 12 char each
+        required:
+          - name
+          - values
+        example:
+          name: "labels"
+          values: ["Pit", "Brisket", "Butt", "Turkey"]
+
+    # Sound message
+    soundUplink:
+      summary: Sound configuration and status
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [sound]
+          config:
+            type: string
+            enum: [off, chirps, alarms]
+          status:
+            type: string
+            enum: [alarm, off]
+        required:
+          - name
+          - config
+          - status
+        example:
+          name: "sound"
+          config: "chirps"
+          status: "off"
+
+    soundDownlink:
+      summary: Set sound configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [sound]
+          config:
+            type: string
+            enum: [off, chirps, alarms]
+        required:
+          - name
+          - config
+        example:
+          name: "sound"
+          config: "chirps"
+
+    # PID message
+    pidUplink:
+      summary: PID controller configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [pid]
+          p:
+            type: integer
+            description: p * 100
+          i:
+            type: integer
+            description: i * 1000
+          d:
+            type: integer
+          ff:
+            type: integer
+            description: Learned duty cycle when no error from adaptive feed forward method
+          min_dc:
+            type: integer
+            description: Minimum duty cycle
+          pvl:
+            type: integer
+            description: Process value limit, caps output at this number * pit temp
+        required:
+          - name
+          - p
+          - i
+          - d
+          - ff
+          - min_dc
+          - pvl
+        example:
+          name: "pid"
+          p: 1000
+          i: 500
+          d: 250
+          ff: 3000
+          min_dc: 1500
+          pvl: 2
+
+    pidDownlink:
+      summary: Set PID controller configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [pid]
+          p:
+            type: integer
+            description: p * 100
+          i:
+            type: integer
+            description: i * 1000
+          d:
+            type: integer
+          ff:
+            type: integer
+            description: Learned duty cycle when no error from adaptive feed forward method
+          min_dc:
+            type: integer
+            description: Minimum duty cycle
+          pvl:
+            type: integer
+            description: Process value limit, caps output at this number * pit temp
+        required:
+          - name
+          - p
+          - i
+          - d
+          - ff
+          - min_dc
+          - pvl
+        example:
+          name: "pid"
+          p: 1000
+          i: 500
+          d: 250
+          ff: 3000
+          min_dc: 1500
+          pvl: 2
+
+    # GPID message
+    gpidUplink:
+      summary: GPID controller configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [gpid]
+          ramp:
+            type: integer
+            minimum: 0
+            maximum: 4
+            description: Ramp, 0 = disabled, 1-3 = ramp pit temp to maintain the food target temp on that probe
+          sc:
+            type: integer
+            minimum: 0
+            maximum: 4
+            description: Smart cook setting
+          cyc:
+            type: integer
+            minimum: 1
+            maximum: 10
+            description: Cycle time in seconds when smart cook setting is 4
+          prop:
+            type: integer
+            minimum: 10
+            maximum: 50
+            description: Proportional band in degrees F when smart cook is 4
+        required:
+          - name
+          - ramp
+          - sc
+          - cyc
+          - prop
+        example:
+          name: "gpid"
+          ramp: 0
+          sc: 2
+          cyc: 5
+          prop: 25
+
+    gpidDownlink:
+      summary: Set GPID controller configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [gpid]
+          sc:
+            type: integer
+            minimum: 0
+            maximum: 4
+            description: Smart cook setting
+          cyc:
+            type: integer
+            minimum: 1
+            maximum: 10
+            description: Cycle time in seconds when smart cook setting is 4
+          prop:
+            type: integer
+            minimum: 10
+            maximum: 50
+            description: Proportional band in degrees F when smart cook is 4
+        required:
+          - name
+          - sc
+          - cyc
+          - prop
+        example:
+          name: "gpid"
+          sc: 2
+          cyc: 5
+          prop: 25
+
+    # Open Pit message
+    openPitUplink:
+      summary: Open pit configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [open_pit]
+          max_pause:
+            type: integer
+            description: Max open pause time in seconds
+        required:
+          - name
+          - enabled
+          - max_pause
+        example:
+          name: "open_pit"
+          max_pause: 300
+
+    openPitDownlink:
+      summary: Set open pit configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [open_pit]
+          max_pause:
+            type: integer
+            description: Max open pause time in seconds
+        required:
+          - name
+          - max_pause
+        example:
+          name: "open_pit"
+          max_pause: 300
+
+    # Step message
+    stepUplink:
+      summary: Step configuration and status
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [step]
+          index:
+            type: integer
+            description: 0-based step
+          active:
+            type: boolean
+            description: Currently on this step
+          step_name:
+            type: string
+            description: Name of step
+          set_temp:
+            type: integer
+            description: Set temp to hold during this step
+          end_by:
+            type: string
+            enum: [time, temp, none]
+          time:
+            type: integer
+            description: Time this step lasts in seconds
+          temp:
+            type: integer
+            description: Target temp that causes to next step if end_by == temp
+          sensor:
+            type: integer
+            description: Sensor used for target temp if end_by = temp
+          started_at:
+            type: integer
+            description: Epoch this step started
+        required:
+          - name
+          - index
+          - active
+          - step_name
+          - set_temp
+          - end_by
+        example:
+          name: "step"
+          index: 0
+          active: true
+          step_name: "Smoke"
+          set_temp: 225
+          end_by: "time"
+          time: 7200
+          started_at: 1648224000
+
+    stepDownlink:
+      summary: Set step configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [step]
+          index:
+            type: integer
+            description: 0-based step
+          step_name:
+            type: string
+            description: Name of step
+          set_temp:
+            type: integer
+            description: Set temp to hold during this step
+          end_by:
+            type: string
+            enum: [time, temp, none]
+          time:
+            type: integer
+            description: Time this step lasts in seconds
+          temp:
+            type: integer
+            description: Target temp that causes to next step if end_by == temp
+          sensor:
+            type: integer
+            description: Sensor used for target temp if end_by = temp
+        required:
+          - name
+          - index
+          - step_name
+          - set_temp
+          - end_by
+        example:
+          name: "step"
+          index: 0
+          step_name: "Smoke"
+          set_temp: 225
+          end_by: "time"
+          time: 7200
+
+    # Device Temperature message
+    deviceTempUplink:
+      summary: Device temperature
+      description: This message is sent when it changes 5 degrees C or 1 degree if device temp is high. (Not supported on 400.)
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [device_temp]
+          value:
+            type: integer
+        required:
+          - name
+          - value
+        example:
+          name: "device_temp"
+          value: 85
+
+    # DC Input message
+    dcInputUplink:
+      summary: DC input voltage
+      description: This uplink is published when dc_input changes 0.1 volts.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [dc_input]
+          value:
+            type: integer
+            description: Input voltage in decivolts
+        required:
+          - name
+          - value
+        example:
+          name: "dc_input"
+          value: 120
+
+    # Meat Alarm Triggered message
+    meatAlarmTriggeredUplink:
+      summary: Meat alarm triggered
+      description: This uplink is published when the meat is done.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [meat_alarm_triggered]
+          sensor:
+            type: integer
+            minimum: 1
+            maximum: 3
+        required:
+          - name
+          - sensor
+        example:
+          name: "meat_alarm_triggered"
+          sensor: 1
+
+    # Pit Alarm Active message
+    pitAlarmActiveUplink:
+      summary: Pit alarm active
+      description: This uplink is published when pit alarm becomes active after being enabled. (It becomes active when the pit temp becomes nearly at the set temp.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [pit_alarm_active]
+        required:
+          - name
+        example:
+          name: "pit_alarm_active"
+
+    # Pit Alarm Triggered message
+    pitAlarmTriggeredUplink:
+      summary: Pit alarm triggered
+      description: This uplink is published when the pit temp goes out of range set by pit alarm if the pit alarm is active.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [pit_alarm_triggered]
+        required:
+          - name
+        example:
+          name: "pit_alarm_triggered"
+
+    # Vent Advice message
+    ventAdviceUplink:
+      summary: Vent advice
+      description: This uplink is published when pit temp has been above set temp for a long time.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [vent_advice]
+        required:
+          - name
+        example:
+          name: "vent_advice"
+
+    # Opened message
+    openedUplink:
+      summary: Cooker opened
+      description: This uplink is published when the controller detects the cooker is opened.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [opened]
+        required:
+          - name
+        example:
+          name: "opened"
+
+    # Closed message
+    closedUplink:
+      summary: Cooker closed
+      description: This uplink is published when the controller detects the cooker is closed.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [closed]
+        required:
+          - name
+        example:
+          name: "closed"
+
+    # Probe Overtemp message
+    probeOvertempUplink:
+      summary: Probe overtemperature
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [probe_overtemp]
+          sensor:
+            type: integer
+        required:
+          - name
+          - sensor
+        example:
+          name: "probe_overtemp"
+          sensor: 1
+
+    # Device Overtemp message
+    deviceOvertempUplink:
+      summary: Device overtemperature
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [device_overtemp]
+        required:
+          - name
+        example:
+          name: "device_overtemp"
+
+    # WiFi Scan message
+    wifiScanUplink:
+      summary: WiFi scan results
+      description: This uplink is published at startup to show results of discovered access points, one message for each AP discovered.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [wifi_scan]
+          index:
+            type: integer
+          count:
+            type: integer
+          ssid:
+            type: string
+          rssi:
+            type: integer
+          bssid:
+            type: string
+        required:
+          - name
+          - index
+          - count
+          - ssid
+          - rssi
+          - bssid
+        example:
+          name: "wifi_scan"
+          index: 0
+          count: 5
