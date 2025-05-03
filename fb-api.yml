@@ -4,35 +4,81 @@ info:
   version: 1.0.1
   description: |-
     April 29, 2025
-    
-    API for interacting with Flame Boss temperature controllers via MQTT.
-    
-    Get the latest version of this document at https://github.com/flameboss/fb-api-doc
+    # Overview
 
-    Sign-up and login at myflameboss.com and visit your dev page to obtain your MQTT credentials:
+    API for interacting with Flame Boss temperature controllers via MQTT/TCP/IP network and
+    Bluetooth.
 
-    https://myflameboss.com/users/dev
+    Get the latest version of this document in source code at
 
+    https://github.com/flameboss/fb-api-doc
+
+    and published on the web at
+
+    https://myflameboss.com/doc/api/index.html
+
+    # Message Format
     We use the following terms:
 
     - The **target** or **device** is the controller or sensor.
     - An **uplink** is a message published by the target for the cloud or your application.
     - A **downlink** is a message published by the cloud or by your application to the target.
 
-    Most uplinks are published on topic `flameboss/<device_id>/send/data`.
-    
-    Public cook data is published on topic `flameboss/<device_id>/send/open`.
-    
-    (Subscribe to both send topics if the device is added to your account; otherwise just subscribe to the open send topic.)
-    
-    All downlinks from your app to the controller are published on topic `flameboss/<device_id>/recv`.
-
     Every message is a JSON object with at least one property with key "name".
 
-    The controller sends relevant messages when the settings or state changes.
+    The controller sends uplink messages when a setting or reading changes.
 
-    An app can request updates immediately by sending messages with only the name property.
-    For example, to request an immediate update on temperatures, send `{"name":"temps"}` to `flameboss/<device_id>/recv`.
+    An app can request updates immediately by sending downlink messages with only the name property.
+    For example, to request an immediate update on temperatures, send downlink `{"name":"temps"}` to the target.
+
+    # MQTT
+
+    ## MQTT Credentials
+    Sign-up and login at myflameboss.com and visit your dev page to obtain your MQTT credentials:
+
+    https://myflameboss.com/users/dev
+
+    ## MQTT Server
+    myflameboss.com
+
+    ## MQTT Topics
+    Most uplinks are published on topic `flameboss/<device_id>/send/data`.
+
+    Public cook data is published on topic `flameboss/<device_id>/send/open`.
+
+    (Subscribe to both send topics if the device is added to your account; otherwise just subscribe to the open send topic.)
+
+    All downlinks from your app to the controller are published on topic `flameboss/<device_id>/recv`.
+
+    # Bluetooth
+    Targets send and receive the same JSON messages over Bluetooth as they do over the network and MQTT.
+
+    Add a newline after every JSON object when both sending to and receiving from the target.
+
+    Here are the UUIDs required.
+
+    ## BBQ Guru
+    Service:
+
+    EA2B0001-C5CE-41A0-A76F-715FB5F63288
+
+    Characteristics:
+
+    EA2B0002-C5CE-41A0-A76F-715FB5F63288 Rx (app sends to this characteristic)
+
+    EA2B0003-C5CE-41A0-A76F-715FB5F63288 Tx (app reads messages from this characteristic)
+
+    ## Flame Boss, Egg Genius, Cookshack and other targets
+
+    Service:
+
+    838F0001-5250-4C31-BEBF-4020B71E8574
+
+    Characteristics:
+
+    ABF1 Rx (app sends to this characteristic)
+
+    ABF2 Tx  (app reads messages from this characteristic)
 
   license:
     name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
@@ -154,6 +200,8 @@ channels:
         $ref: '#/components/messages/setTempDownlink'
       wifiDownlink:
         $ref: '#/components/messages/wifiDownlink'
+      wifiScanDownlink:
+        $ref: '#/components/messages/wifiScanDownlink'
       bleCxDownlink:
         $ref: '#/components/messages/bleCxDownlink'
       meatAlarmDownlink:
@@ -173,167 +221,6 @@ channels:
 
 components:
   messages:
-    timeUplink:
-      summary: Device current time
-      payload:
-        type: object
-        properties:
-          name:
-            type: string
-            enum: [time]
-          epoch:
-            type: integer
-            description: Time in Unix epoch scale
-          ms:
-            type: integer
-            description: Fraction of second in ms
-        required:
-          - name
-          - epoch
-        example:
-          name: "time"
-          epoch: 1648224000
-          ms: 500
-
-    timeDownlink:
-      summary: Set device time
-      payload:
-        type: object
-        properties:
-          name:
-            type: string
-            enum: [time]
-          epoch:
-            type: integer
-            description: Time in Unix epoch scale
-          ms:
-            type: integer
-            description: Fraction of second in ms
-        required:
-          - name
-        example:
-          name: "time"
-          epoch: 1648224000
-          ms: 500
-
-    dnsUplink:
-      summary: DNS configuration information
-      payload:
-        type: object
-        properties:
-          name:
-            type: string
-            enum: [dns]
-          dhcp:
-            type: boolean
-          ips:
-            type: array
-            items:
-              type: string
-            description: Array of strings of IP addresses, all but first element may be ignored
-        required:
-          - name
-          - dhcp
-          - ips
-        example:
-          name: "dns"
-          dhcp: true
-          ips: ["192.168.1.100"]
-
-    dnsDownlink:
-      summary: Set DNS configuration
-      payload:
-        type: object
-        properties:
-          name:
-            type: string
-            enum: [dns]
-          dhcp:
-            type: boolean
-          ips:
-            type: array
-            items:
-              type: string
-            description: |-
-              Array of strings of IP addresses.
-              All but first element may be ignored if the device
-              does not support more than one DNS address.
-              This property is required if dhcp is false, and optional-and-ignored if dhcp is true.
-        required:
-          - name
-          - dhcp
-        example:
-          name: "dns"
-          dhcp: true
-
-    # IP message
-    ipUplink:
-      summary: IP configuration information
-      payload:
-        type: object
-        properties:
-          name:
-            type: string
-            enum: [ip]
-          mode:
-            type: string
-            enum: [manual, dhcp]
-          ip:
-            type: string
-            description: IP address
-          netmask:
-            type: string
-            description: Netmask
-          gateway:
-            type: string
-            description: Gateway IP address
-        required:
-          - name
-          - mode
-          - ip
-          - netmask
-          - gateway
-        example:
-          name: "ip"
-          mode: "dhcp"
-          ip: "192.168.1.100"
-          netmask: "255.255.255.0"
-          gateway: "192.168.1.1"
-
-    ipDownlink:
-      summary: Set IP configuration
-      payload:
-        type: object
-        properties:
-          name:
-            type: string
-            enum: [ip]
-          mode:
-            type: string
-            enum: [manual, dhcp]
-          ip:
-            type: string
-            description: IP address
-          netmask:
-            type: string
-            description: Netmask
-          gateway:
-            type: string
-            description: Gateway IP address
-        required:
-          - name
-          - mode
-          - ip
-          - netmask
-          - gateway
-        example:
-          name: "ip"
-          mode: "dhcp"
-          ip: "192.168.1.100"
-          netmask: "255.255.255.0"
-          gateway: "192.168.1.1"
-
-    # ID message
     idUplink:
       summary: Device identification information
       payload:
@@ -378,9 +265,167 @@ components:
         example:
           name: "id"
 
-    # Temps message
+    timeUplink:
+      summary: Device current time
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [time]
+          epoch:
+            type: integer
+            description: Time in Unix epoch scale
+          ms:
+            type: integer
+            description: Fraction of second in ms
+        required:
+          - name
+          - epoch
+        example:
+          name: "time"
+          epoch: 1648224000
+          ms: 500
+
+    timeDownlink:
+      summary: Set device time or request device time
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [time]
+          epoch:
+            type: integer
+            description: Time in Unix epoch scale
+          ms:
+            type: integer
+            description: Fraction of second in ms
+        required:
+          - name
+        example:
+          name: "time"
+          epoch: 1648224000
+          ms: 500
+
+    dnsUplink:
+      summary: DNS configuration information
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [dns]
+          dhcp:
+            type: boolean
+          ips:
+            type: array
+            items:
+              type: string
+            description: Array of strings of IP addresses, all but first element may be ignored
+        required:
+          - name
+          - dhcp
+          - ips
+        example:
+          name: "dns"
+          dhcp: true
+          ips: ["192.168.1.100"]
+
+    dnsDownlink:
+      summary: Set DNS configuration or request DNS configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [dns]
+          dhcp:
+            type: boolean
+          ips:
+            type: array
+            items:
+              type: string
+            description: |-
+              Array of strings of IP addresses.
+              All but first element may be ignored if the device
+              does not support more than one DNS address.
+              This property is required if dhcp is false, and optional-and-ignored if dhcp is true.
+        required:
+          - name
+          - dhcp
+        example:
+          name: "dns"
+          dhcp: true
+
+    ipUplink:
+      summary: IP configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [ip]
+          mode:
+            type: string
+            enum: [manual, dhcp]
+          ip:
+            type: string
+            description: IP address
+          netmask:
+            type: string
+            description: Netmask
+          gateway:
+            type: string
+            description: Gateway IP address
+        required:
+          - name
+          - mode
+          - ip
+          - netmask
+          - gateway
+        example:
+          name: "ip"
+          mode: "dhcp"
+          ip: "192.168.1.100"
+          netmask: "255.255.255.0"
+          gateway: "192.168.1.1"
+
+    ipDownlink:
+      summary: Set or request IP configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [ip]
+          mode:
+            type: string
+            enum: [manual, dhcp]
+          ip:
+            type: string
+            description: IP address
+          netmask:
+            type: string
+            description: Netmask
+          gateway:
+            type: string
+            description: Gateway IP address
+        required:
+          - name
+          - mode
+          - ip
+          - netmask
+          - gateway
+        example:
+          name: "ip"
+          mode: "dhcp"
+          ip: "192.168.1.100"
+          netmask: "255.255.255.0"
+          gateway: "192.168.1.1"
+
     tempsUplink:
-      summary: Temperature information
+      summary: Temperature readings, set temperature, and blower duty cycle information
       payload:
         type: object
         properties:
@@ -417,9 +462,8 @@ components:
           set_temp: 225
           blower: 2500
 
-    # Set Temp message
     setTempUplink:
-      summary: Set temperature limits
+      summary: Set temperature
       payload:
         type: object
         properties:
@@ -440,7 +484,7 @@ components:
           max: 500
 
     setTempDownlink:
-      summary: Set device temperature
+      summary: Request set temperature
       payload:
         type: object
         properties:
@@ -456,7 +500,6 @@ components:
           name: "set_temp"
           value: 250
 
-    # WiFi message
     wifiUplink:
       summary: WiFi configuration information
       payload:
@@ -484,26 +527,8 @@ components:
           ssid: "MyWifiNetwork"
           key: "my-wifi-pw"
 
-    wifiCxUplink:
-      summary: WiFi connection information
-      payload:
-        type: object
-        properties:
-          name:
-            type: string
-            enum: [wifi_cx]
-          connected:
-            type: boolean
-            description: wifi is connected to an access point
-        required:
-          - name
-          - connected
-        example:
-          name: "wifi_cx"
-          connected: true
-
     wifiDownlink:
-      summary: Set WiFi configuration
+      summary: Set or request WiFi configuration
       payload:
         type: object
         properties:
@@ -526,6 +551,24 @@ components:
           index: 0
           ssid: "MyWifiNetwork"
           key: "wifi-password"
+
+    wifiCxUplink:
+      summary: WiFi connection information
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [wifi_cx]
+          connected:
+            type: boolean
+            description: wifi is connected to an access point
+        required:
+          - name
+          - connected
+        example:
+          name: "wifi_cx"
+          connected: true
 
     # BLE Connection message
     bleCxUplink:
@@ -861,7 +904,7 @@ components:
 
     # GPID message
     gpidUplink:
-      summary: GPID controller configuration
+      summary: BBQ Guru PID controller configuration
       payload:
         type: object
         properties:
@@ -902,7 +945,7 @@ components:
           prop: 25
 
     gpidDownlink:
-      summary: Set GPID controller configuration
+      summary: Set BBQ Guru PID controller configuration
       payload:
         type: object
         properties:
@@ -999,13 +1042,13 @@ components:
             enum: [time, temp, none]
           time:
             type: integer
-            description: Time this step lasts in seconds
+            description: Time this step lasts in seconds if end_by == time
           temp:
             type: integer
             description: Target temp that causes to next step if end_by == temp
           sensor:
             type: integer
-            description: Sensor used for target temp if end_by = temp
+            description: Sensor used for target temp if end_by = temp (default 1 aka meat 1)
           started_at:
             type: integer
             description: Epoch this step started
@@ -1176,7 +1219,7 @@ components:
 
     # Opened message
     openedUplink:
-      summary: Cooker opened
+      summary: Cooker opened - DEPRECATED - use openPitUplink instead
       description: This uplink is published when the controller detects the cooker is opened.
       payload:
         type: object
@@ -1191,7 +1234,7 @@ components:
 
     # Closed message
     closedUplink:
-      summary: Cooker closed
+      summary: Cooker closed - DEPRECATED - use openPitUplink instead
       description: This uplink is published when the controller detects the cooker is closed.
       payload:
         type: object
@@ -1239,7 +1282,7 @@ components:
     # WiFi Scan message
     wifiScanUplink:
       summary: WiFi scan results
-      description: This uplink is published at startup to show results of discovered access points, one message for each AP discovered.
+      description: This uplink is published at startup, and in response to wifi_scan downlink, to show results of discovered access points, one message for each AP discovered.
       payload:
         type: object
         properties:
@@ -1248,22 +1291,43 @@ components:
             enum: [wifi_scan]
           index:
             type: integer
+            description: the index from 0 to count - 1 of this message response to the wifi_scan downlink
           count:
             type: integer
+            descritpion: how many wifi_scan messages are being sent in one response to the wifi_scan downlink
           ssid:
             type: string
+            description: the ssid of the access point
           rssi:
             type: integer
+            description: rssi x 10
           bssid:
             type: string
+            description: optional, bssid of AP
         required:
           - name
           - index
           - count
           - ssid
           - rssi
-          - bssid
         example:
           name: "wifi_scan"
           index: 0
           count: 5
+          ssid: "fb"
+          rssi: -550
+
+    wifiScanDownlink:
+      summary: Request WiFi scan
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [wifi_scan]
+        required:
+          - name
+        example:
+          name: "wifi_scan"
+
+
