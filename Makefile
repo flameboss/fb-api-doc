@@ -17,7 +17,7 @@ clean:
 
 install:
 
-start restart:
+start stop restart:
 
 /usr/bin/npm:
 	DEBIAN_FRONTEND=noninteractive apt-get install -y npm
