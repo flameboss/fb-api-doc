@@ -221,6 +221,19 @@ channels:
 
 components:
   messages:
+    alarmAckDownlink:
+      summary: Reset and silence any active alert including for pit alert, meat alert, or timer alert
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [alarm_ack]
+        required:
+          - name
+        example:
+          name: "alarm_ack"
+
     idUplink:
       summary: Device identification information
       payload:
@@ -775,7 +788,6 @@ components:
           name: "labels"
           values: ["Pit", "Brisket", "Butt", "Turkey"]
 
-    # Sound message
     soundUplink:
       summary: Sound configuration and status
       payload:
@@ -1330,4 +1342,73 @@ components:
         example:
           name: "wifi_scan"
 
+    timerUplink:
+      summary: Timer configuration and status
+      description: The timer value, if action is not none, counts down. When it gets to zero, the action is performed, either
+        changing the internal/effective set temperature to the hold temperature (hold), or sending an alert (alarm).
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [timer]
+          action:
+            type: string
+            enum: [none, hold, alarm]
+            description: what to do when the timer expires. If hold, change the internal set temperature to the hold temperature.
+          value:
+            type: integer
+            descritpion: start value of the timer in seconds
+          hold:
+            type: integer
+            description: the hold temperature
+          ends_at:
+            type: integer
+            description: if status is active, this is the timestamp when the timer will expire.
+          status:
+            type: string
+            enum: [off, active, triggered]
+            description: |-
+              If status is triggered and action is hold, the controller has an effective set temperature equal to the hold temperature.
+              If status is triggered and action is alarm, the controller is alerting.
+              Note: this property is redundant and can be computed from action and ends_at.
+              However, it might be different than the computed value temporarily due to time differences
+              between the target and its communicating peers.
+        required:
+          - name
+          - action
+          - value
+          - status
+          - ends_at
+        example:
+          name: "timer"
+          action: "hold"
+          value: 3600
+          status: "active"
+          ends_at: 1747429645
 
+    timerDownlink:
+      summary: Set timer configuration or request timer configuration and status
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [timer]
+          action:
+            type: string
+            enum: [none, hold, alarm]
+            description: what to do when the timer expires. If hold, change the internal set temperature to the hold temperature.
+          value:
+            type: integer
+            descritpion: start value of the timer in seconds
+          hold:
+            type: integer
+            description: the hold temperature
+        required:
+          - name
+        example:
+          name: "timer"
+          action: "hold"
+          value: 14400
+          hold: 656
