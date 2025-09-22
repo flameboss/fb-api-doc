@@ -1412,3 +1412,76 @@ components:
           action: "hold"
           value: 14400
           hold: 656
+
+    resetDownlink:
+      summary: Reset different levels of the device: the mqtt connection, the wifi connection, or the processor
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [reset]
+          type:
+            type: string
+            enum: [mqtt, wifi, device]
+        required:
+          - name
+          - type
+        example:
+          name: "reset"
+          type: "device"
+
+    logDownlink:
+      summary: Set the log level that is output on topic flameboss/<device_id>/log
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [log]
+          level:
+            type: integer
+            description: 0 = debug, 1 = info, 2 = warn, 3 = error
+        required:
+          - name
+          - level
+        example:
+          name: "log"
+          level: 1
+
+    stateDownlink:
+      summary: Turns the cooker off (not supported on most targets because they do not have an on/off state)
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [state]
+          value:
+            type: string
+            enum: [idle]
+        required:
+          - name
+          - value
+        example:
+          name: "state"
+          type: "idle"
+
+
+    stateUplink:
+      summary: Says what state the cooker is in: idle, run, error, production (trying to pass the production test)
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [state]
+          value:
+            type: string
+            enum: [idle, run, error, production]
+        required:
+          - name
+          - value
+        example:
+          name: "state"
+          type: "run"
