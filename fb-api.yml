@@ -33,13 +33,14 @@ info:
 
     # MQTT
 
+    Broker host: myflameboss.com
+    Protocol: MQTT v3.1.1
+    Port: 8883 for secure TLS connections, 1883 for non-TLS connections
+
     ## MQTT Credentials
     Sign-up and login at myflameboss.com and visit your dev page to obtain your MQTT credentials:
 
     https://myflameboss.com/users/dev
-
-    ## MQTT Server
-    myflameboss.com
 
     ## MQTT Topics
     Most uplinks are published on topic `flameboss/<device_id>/send/data`.
@@ -50,7 +51,19 @@ info:
 
     All downlinks from your app to the controller are published on topic `flameboss/<device_id>/recv`.
 
+    # LAN MQTT
+
+    If your controller is on the same local network as your app, you can send and receive the same JSON messages using the controller's
+    internal MQTT broker on port 1883. Here are the vitals:
+
+    Protocol: MQTT (non-TLS) v3.1.1
+    Port: 1883
+    Username: fb
+    Password: The Device PIN (shown on the controller's settings screen)
+    Topics: Publish downlinks to flameboss/<device_id>/recv and listen for uplinks on flameboss/<device_id>/send/data
+    
     # Bluetooth
+
     Targets send and receive the same JSON messages over Bluetooth as they do over the network and MQTT.
 
     Add a newline after every JSON object when both sending to and receiving from the target.
@@ -58,6 +71,7 @@ info:
     Here are the UUIDs required.
 
     ## BBQ Guru
+    
     Service:
 
     EA2B0001-C5CE-41A0-A76F-715FB5F63288
