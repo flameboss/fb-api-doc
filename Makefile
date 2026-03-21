@@ -7,15 +7,17 @@ else
 OS_DEPS = /opt/homebrew/bin/asyncapi
 endif
 
-all:	$(OS_DEPS) $(HTML_DIR)/index.html
+all:	$(OS_DEPS) html/index.html
 
-$(HTML_DIR)/index.html:	fb-api.yml
-	mkdir -p $(HTML_DIR)
-	asyncapi generate fromTemplate fb-api.yml @asyncapi/html-template@3.0.0 -o $(HTML_DIR) --use-new-generator --force-write
+html/index.html:	fb-api.yml
+	asyncapi generate fromTemplate fb-api.yml @asyncapi/html-template@3.5.6 -o html --force-write -p sidebarOrganization=byTagsNoRoot
 
 clean:
+	rm -rf html
 
 install:
+	mkdir -p $(HTML_DIR)
+	cp -r html/* $(HTML_DIR)/
 
 start stop restart:
 
@@ -28,5 +30,5 @@ start stop restart:
 	cd $(HOME) && dpkg -i asyncapi.deb
 
 /opt/homebrew/bin/asyncapi:
-	npm install -g @asyncapi/generator@2.6.0
+	npm install -g @asyncapi/cli
 

@@ -4,7 +4,7 @@ info:
   version: 1.0.1
   description: |-
     April 29, 2025
-    # Overview
+    ## Overview
 
     API for interacting with Flame Boss temperature controllers via MQTT/TCP/IP network and
     Bluetooth.
@@ -17,7 +17,7 @@ info:
 
     https://myflameboss.com/doc/api/index.html
 
-    # Message Format
+    ## Message Format
     We use the following terms:
 
     - The **target** or **device** is the controller or sensor.
@@ -31,18 +31,18 @@ info:
     An app can request updates immediately by sending downlink messages with only the name property.
     For example, to request an immediate update on temperatures, send downlink `{"name":"temps"}` to the target.
 
-    # MQTT
+    ## MQTT
 
     Broker host: myflameboss.com
     Protocol: MQTT v3.1.1
     Port: 8883 for secure TLS connections, 1883 for non-TLS connections
 
-    ## MQTT Credentials
+    ### MQTT Credentials
     Sign-up and login at myflameboss.com and visit your dev page to obtain your MQTT credentials:
 
     https://myflameboss.com/users/dev
 
-    ## MQTT Topics
+    ### MQTT Topics
     Most uplinks are published on topic `flameboss/<device_id>/send/data`.
 
     Public cook data is published on topic `flameboss/<device_id>/send/open`.
@@ -51,7 +51,7 @@ info:
 
     All downlinks from your app to the controller are published on topic `flameboss/<device_id>/recv`.
 
-    # LAN MQTT
+    ## LAN MQTT
 
     If your controller is on the same local network as your app, you can send and receive the same JSON messages using the controller's
     internal MQTT broker on port 1883. Here are the vitals:
@@ -61,8 +61,8 @@ info:
     Username: fb
     Password: The Device PIN (shown on the controller's settings screen)
     Topics: Publish downlinks to flameboss/<device_id>/recv and listen for uplinks on flameboss/<device_id>/send/data
-    
-    # Bluetooth
+
+    ## Bluetooth
 
     Targets send and receive the same JSON messages over Bluetooth as they do over the network and MQTT.
 
@@ -70,8 +70,8 @@ info:
 
     Here are the UUIDs required.
 
-    ## BBQ Guru
-    
+    ### BBQ Guru
+
     Service:
 
     EA2B0001-C5CE-41A0-A76F-715FB5F63288
@@ -82,7 +82,7 @@ info:
 
     EA2B0003-C5CE-41A0-A76F-715FB5F63288 Tx (app reads messages from this characteristic)
 
-    ## Flame Boss, Egg Genius, Cookshack and other targets
+    ### Flame Boss, Egg Genius, Cookshack and other targets
 
     Service:
 
@@ -90,9 +90,9 @@ info:
 
     Characteristics:
 
-    ABF1 Rx (app sends to this characteristic)
+    6E400002-B5A3-F393-E0A9-E50E24DCCA9E Rx (app sends to this characteristic)
 
-    ABF2 Tx  (app reads messages from this characteristic)
+    6E400003-B5A3-F393-E0A9-E50E24DCCA9E Tx  (app reads messages from this characteristic)
 
   license:
     name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
@@ -115,10 +115,10 @@ channels:
     servers:
       - $ref: '#/servers/production'
     messages:
-      timeUplink:
-        $ref: '#/components/messages/timeUplink'
-      tempsUplink:
-        $ref: '#/components/messages/tempsUplink'
+      time_up:
+        $ref: '#/components/messages/time_up'
+      temps_up:
+        $ref: '#/components/messages/temps_up'
 
   flameboss/{deviceId}/send/data:
     description: Messages sent from the target to subscribers (uplinks)
@@ -128,114 +128,586 @@ channels:
     servers:
       - $ref: '#/servers/production'
     messages:
-      timeUplink:
-        $ref: '#/components/messages/timeUplink'
-      dnsUplink:
-        $ref: '#/components/messages/dnsUplink'
-      ipUplink:
-        $ref: '#/components/messages/ipUplink'
-      idUplink:
-        $ref: '#/components/messages/idUplink'
-      tempsUplink:
-        $ref: '#/components/messages/tempsUplink'
-      setTempUplink:
-        $ref: '#/components/messages/setTempUplink'
-      wifiUplink:
-        $ref: '#/components/messages/wifiUplink'
-      wifiCxUplink:
-        $ref: '#/components/messages/wifiCxUplink'
-      meatAlarmUplink:
-        $ref: '#/components/messages/meatAlarmUplink'
-      setTempLimitsUplink:
-        $ref: '#/components/messages/setTempLimitsUplink'
-      pitAlarmUplink:
-        $ref: '#/components/messages/pitAlarmUplink'
-      labelsUplink:
-        $ref: '#/components/messages/ipUplink'
-      soundUplink:
-        $ref: '#/components/messages/soundUplink'
-      pidUplink:
-        $ref: '#/components/messages/ipUplink'
-      gpidUplink:
-        $ref: '#/components/messages/ipUplink'
-      openPitUplink:
-        $ref: '#/components/messages/openPitUplink'
-      stepUplink:
-        $ref: '#/components/messages/stepUplink'
-      deviceTempUplink:
-        $ref: '#/components/messages/deviceTempUplink'
-      dcInputUplink:
-        $ref: '#/components/messages/dcInputUplink'
-      meatAlarmTriggeredUplink:
-        $ref: '#/components/messages/meatAlarmTriggeredUplink'
-      pitAlarmActiveUplink:
-        $ref: '#/components/messages/pitAlarmActiveUplink'
-      pitAlarmTriggeredUplink:
-        $ref: '#/components/messages/pitAlarmTriggeredUplink'
-      ventAdviceUplink:
-        $ref: '#/components/messages/ventAdviceUplink'
-      openedUplink:
-        $ref: '#/components/messages/openedUplink'
-      closedUplink:
-        $ref: '#/components/messages/closedUplink'
-      probeOvertempUplink:
-        $ref: '#/components/messages/probeOvertempUplink'
-      deviceOvertempUplink:
-        $ref: '#/components/messages/deviceOvertempUplink'
-      wifiScanUplink:
-        $ref: '#/components/messages/wifiScanUplink'
-      bleCxUplink:
-        $ref: '#/components/messages/bleCxUplink'
+      time_up:
+        $ref: '#/components/messages/time_up'
+      dns_up:
+        $ref: '#/components/messages/dns_up'
+      ip_up:
+        $ref: '#/components/messages/ip_up'
+      id_up:
+        $ref: '#/components/messages/id_up'
+      temps_up:
+        $ref: '#/components/messages/temps_up'
+      set_temp_up:
+        $ref: '#/components/messages/set_temp_up'
+      wifi_up:
+        $ref: '#/components/messages/wifi_up'
+      wifi_cx_up:
+        $ref: '#/components/messages/wifi_cx_up'
+      meat_alarm_up:
+        $ref: '#/components/messages/meat_alarm_up'
+      set_temp_limits_up:
+        $ref: '#/components/messages/set_temp_limits_up'
+      pit_alarm_up:
+        $ref: '#/components/messages/pit_alarm_up'
+      labels_up:
+        $ref: '#/components/messages/labels_up'
+      sound_up:
+        $ref: '#/components/messages/sound_up'
+      pid_up:
+        $ref: '#/components/messages/pid_up'
+      gpid_up:
+        $ref: '#/components/messages/gpid_up'
+      open_pit_up:
+        $ref: '#/components/messages/open_pit_up'
+      step_up:
+        $ref: '#/components/messages/step_up'
+      device_temp_up:
+        $ref: '#/components/messages/device_temp_up'
+      dc_input_up:
+        $ref: '#/components/messages/dc_input_up'
+      meat_alarm_triggered_up:
+        $ref: '#/components/messages/meat_alarm_triggered_up'
+      pit_alarm_active_up:
+        $ref: '#/components/messages/pit_alarm_active_up'
+      pit_alarm_triggered_up:
+        $ref: '#/components/messages/pit_alarm_triggered_up'
+      vent_advice_up:
+        $ref: '#/components/messages/vent_advice_up'
+      opened_up:
+        $ref: '#/components/messages/opened_up'
+      closed_up:
+        $ref: '#/components/messages/closed_up'
+      probe_overtemp_up:
+        $ref: '#/components/messages/probe_overtemp_up'
+      device_overtemp_up:
+        $ref: '#/components/messages/device_overtemp_up'
+      wifi_scan_up:
+        $ref: '#/components/messages/wifi_scan_up'
+      ble_cx_up:
+        $ref: '#/components/messages/ble_cx_up'
+      timer_up:
+        $ref: '#/components/messages/timer_up'
+      state_up:
+        $ref: '#/components/messages/state_up'
 
   flameboss/{deviceId}/recv:
+    summary: Messages sent to the target (downlinks)
+    description: |
+      Publish messages to this topic to control the target or request data from the target.
+      To request updates, send a message with only the name property.
+      For example: `{"name": "temps"}`
+      To request update of all settings and readings, publish a sync message to
+      this topic.
+      For example: '{"name": "sync"}'
     parameters:
       deviceId:
         description: The integer unique identifier of the Flame Boss target
-      summary: Messages sent to the target (downlinks)
-      description: |
-        Publish messages to this topic to control the target or request data from the target.
-        To request updates, send a message with only the name property.
-        For example: `{"name": "temps"}`
-        To request update of all settings and readings, publish a sync message to
-        this topic.
-        For example: '{"name": "sync"}'
     servers:
       - $ref: '#/servers/production'
     messages:
-      timeDownlink:
-        $ref: '#/components/messages/timeDownlink'
-      dnsDownlink:
-        $ref: '#/components/messages/dnsDownlink'
-      ipDownlink:
-        $ref: '#/components/messages/ipDownlink'
-      idDownlink:
-        $ref: '#/components/messages/idDownlink'
-      setTempDownlink:
-        $ref: '#/components/messages/setTempDownlink'
-      wifiDownlink:
-        $ref: '#/components/messages/wifiDownlink'
-      wifiScanDownlink:
-        $ref: '#/components/messages/wifiScanDownlink'
-      bleCxDownlink:
-        $ref: '#/components/messages/bleCxDownlink'
-      meatAlarmDownlink:
-        $ref: '#/components/messages/meatAlarmDownlink'
-      pitAlarmDownlink:
-        $ref: '#/components/messages/pitAlarmDownlink'
-      labelsDownlink:
-        $ref: '#/components/messages/labelsDownlink'
-      soundDownlink:
-        $ref: '#/components/messages/soundDownlink'
-      pidDownlink:
-        $ref: '#/components/messages/pidDownlink'
-      gpidDownlink:
-        $ref: '#/components/messages/gpidDownlink'
-      openPitDownlink:
-        $ref: '#/components/messages/openPitDownlink'
+      time_down:
+        $ref: '#/components/messages/time_down'
+      dns_down:
+        $ref: '#/components/messages/dns_down'
+      ip_down:
+        $ref: '#/components/messages/ip_down'
+      id_down:
+        $ref: '#/components/messages/id_down'
+      set_temp_down:
+        $ref: '#/components/messages/set_temp_down'
+      wifi_down:
+        $ref: '#/components/messages/wifi_down'
+      wifi_scan_down:
+        $ref: '#/components/messages/wifi_scan_down'
+      ble_cx_down:
+        $ref: '#/components/messages/ble_cx_down'
+      meat_alarm_down:
+        $ref: '#/components/messages/meat_alarm_down'
+      pit_alarm_down:
+        $ref: '#/components/messages/pit_alarm_down'
+      labels_down:
+        $ref: '#/components/messages/labels_down'
+      sound_down:
+        $ref: '#/components/messages/sound_down'
+      pid_down:
+        $ref: '#/components/messages/pid_down'
+      gpid_down:
+        $ref: '#/components/messages/gpid_down'
+      open_pit_down:
+        $ref: '#/components/messages/open_pit_down'
+      step_down:
+        $ref: '#/components/messages/step_down'
+      timer_down:
+        $ref: '#/components/messages/timer_down'
+      state_down:
+        $ref: '#/components/messages/state_down'
+      reset_down:
+        $ref: '#/components/messages/reset_down'
+      log_down:
+        $ref: '#/components/messages/log_down'
+      alarm_ack_down:
+        $ref: '#/components/messages/alarm_ack_down'
+      sync_down:
+        $ref: '#/components/messages/sync_down'
+
+operations:
+  # Cooking
+  "temps uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/temps_up'
+    tags:
+      - name: Cooking
+  "set_temp downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/set_temp_down'
+    tags:
+      - name: Cooking
+  "set_temp uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/set_temp_up'
+    tags:
+      - name: Cooking
+  "set_temp_limits uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/set_temp_limits_up'
+    tags:
+      - name: Cooking
+  "step uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/step_up'
+    tags:
+      - name: Cooking
+  "step downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/step_down'
+    tags:
+      - name: Cooking
+  "timer uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/timer_up'
+    tags:
+      - name: Cooking
+  "timer downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/timer_down'
+    tags:
+      - name: Cooking
+  "labels uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/labels_up'
+    tags:
+      - name: Cooking
+  "labels downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/labels_down'
+    tags:
+      - name: Cooking
+
+  # Alarms
+  "meat_alarm uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/meat_alarm_up'
+    tags:
+      - name: Alarms
+  "meat_alarm downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/meat_alarm_down'
+    tags:
+      - name: Alarms
+  "pit_alarm uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/pit_alarm_up'
+    tags:
+      - name: Alarms
+  "pit_alarm downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/pit_alarm_down'
+    tags:
+      - name: Alarms
+  "alarm_ack downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/alarm_ack_down'
+    tags:
+      - name: Alarms
+  "meat_alarm_triggered uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/meat_alarm_triggered_up'
+    tags:
+      - name: Alarms
+  "pit_alarm_active uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/pit_alarm_active_up'
+    tags:
+      - name: Alarms
+  "pit_alarm_triggered uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/pit_alarm_triggered_up'
+    tags:
+      - name: Alarms
+  "vent_advice uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/vent_advice_up'
+    tags:
+      - name: Alarms
+  "probe_overtemp uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/probe_overtemp_up'
+    tags:
+      - name: Alarms
+  "device_overtemp uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/device_overtemp_up'
+    tags:
+      - name: Alarms
+
+  # Fan Control
+  "pid uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/pid_up'
+    tags:
+      - name: Fan Control
+  "pid downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/pid_down'
+    tags:
+      - name: Fan Control
+  "gpid uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/gpid_up'
+    tags:
+      - name: Fan Control
+  "gpid downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/gpid_down'
+    tags:
+      - name: Fan Control
+  "open_pit uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/open_pit_up'
+    tags:
+      - name: Fan Control
+  "open_pit downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/open_pit_down'
+    tags:
+      - name: Fan Control
+
+  # Network
+  "wifi uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/wifi_up'
+    tags:
+      - name: Network
+  "wifi downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/wifi_down'
+    tags:
+      - name: Network
+  "wifi_cx uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/wifi_cx_up'
+    tags:
+      - name: Network
+  "wifi_scan uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/wifi_scan_up'
+    tags:
+      - name: Network
+  "wifi_scan downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/wifi_scan_down'
+    tags:
+      - name: Network
+  "ble_cx uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/ble_cx_up'
+    tags:
+      - name: Network
+  "ble_cx downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/ble_cx_down'
+    tags:
+      - name: Network
+  "ip uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/ip_up'
+    tags:
+      - name: Network
+  "ip downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/ip_down'
+    tags:
+      - name: Network
+  "dns uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/dns_up'
+    tags:
+      - name: Network
+  "dns downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/dns_down'
+    tags:
+      - name: Network
+
+  # Device
+  "id uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/id_up'
+    tags:
+      - name: Device
+  "id downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/id_down'
+    tags:
+      - name: Device
+  "time uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/time_up'
+    tags:
+      - name: Device
+  "time downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/time_down'
+    tags:
+      - name: Device
+  "state uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/state_up'
+    tags:
+      - name: Device
+  "state downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/state_down'
+    tags:
+      - name: Device
+  "sound uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/sound_up'
+    tags:
+      - name: Device
+  "sound downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/sound_down'
+    tags:
+      - name: Device
+  "reset downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/reset_down'
+    tags:
+      - name: Device
+  "log downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/log_down'
+    tags:
+      - name: Device
+  "device_temp uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/device_temp_up'
+    tags:
+      - name: Device
+  "dc_input uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/dc_input_up'
+    tags:
+      - name: Device
+  "sync downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/sync_down'
+    tags:
+      - name: Device
+
+  # Deprecated
+  "opened uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/opened_up'
+    tags:
+      - name: Deprecated
+  "closed uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/closed_up'
+    tags:
+      - name: Deprecated
 
 components:
   messages:
-    alarmAckDownlink:
+    sync_down:
+      tags:
+        - name: Device
+      summary: Request all settings and readings from the device
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [sync]
+        required:
+          - name
+        example:
+          name: "sync"
+
+    alarm_ack_down:
+      tags:
+        - name: Alarms
       summary: Reset and silence any active alert including for pit alert, meat alert, or timer alert
       payload:
         type: object
@@ -248,7 +720,9 @@ components:
         example:
           name: "alarm_ack"
 
-    idUplink:
+    id_up:
+      tags:
+        - name: Device
       summary: Device identification information
       payload:
         type: object
@@ -279,7 +753,9 @@ components:
           device_id: 456
           uid: "ABC123DEF456=="
 
-    idDownlink:
+    id_down:
+      tags:
+        - name: Device
       summary: Request device identification information
       payload:
         type: object
@@ -292,7 +768,9 @@ components:
         example:
           name: "id"
 
-    timeUplink:
+    time_up:
+      tags:
+        - name: Device
       summary: Device current time
       payload:
         type: object
@@ -314,7 +792,9 @@ components:
           epoch: 1648224000
           ms: 500
 
-    timeDownlink:
+    time_down:
+      tags:
+        - name: Device
       summary: Set device time or request device time
       payload:
         type: object
@@ -335,7 +815,9 @@ components:
           epoch: 1648224000
           ms: 500
 
-    dnsUplink:
+    dns_up:
+      tags:
+        - name: Network
       summary: DNS configuration information
       payload:
         type: object
@@ -359,7 +841,9 @@ components:
           dhcp: true
           ips: ["192.168.1.100"]
 
-    dnsDownlink:
+    dns_down:
+      tags:
+        - name: Network
       summary: Set DNS configuration or request DNS configuration
       payload:
         type: object
@@ -385,7 +869,9 @@ components:
           name: "dns"
           dhcp: true
 
-    ipUplink:
+    ip_up:
+      tags:
+        - name: Network
       summary: IP configuration
       payload:
         type: object
@@ -418,7 +904,9 @@ components:
           netmask: "255.255.255.0"
           gateway: "192.168.1.1"
 
-    ipDownlink:
+    ip_down:
+      tags:
+        - name: Network
       summary: Set or request IP configuration
       payload:
         type: object
@@ -451,7 +939,9 @@ components:
           netmask: "255.255.255.0"
           gateway: "192.168.1.1"
 
-    tempsUplink:
+    temps_up:
+      tags:
+        - name: Cooking
       summary: Temperature readings, set temperature, and blower duty cycle information
       payload:
         type: object
@@ -473,7 +963,7 @@ components:
             type: integer
           blower:
             type: integer
-            description: Blower duty cycle in .01% scale, 10000 = 100%
+            description: Blower duty cycle in 0.01% scale (e.g. 2500 = 25%, 10000 = 100%)
         required:
           - name
           - cook_id
@@ -489,7 +979,9 @@ components:
           set_temp: 225
           blower: 2500
 
-    setTempUplink:
+    set_temp_up:
+      tags:
+        - name: Cooking
       summary: Set temperature
       payload:
         type: object
@@ -510,7 +1002,9 @@ components:
           min: 150
           max: 500
 
-    setTempDownlink:
+    set_temp_down:
+      tags:
+        - name: Cooking
       summary: Request set temperature
       payload:
         type: object
@@ -527,7 +1021,9 @@ components:
           name: "set_temp"
           value: 250
 
-    wifiUplink:
+    wifi_up:
+      tags:
+        - name: Network
       summary: WiFi configuration information
       payload:
         type: object
@@ -554,7 +1050,9 @@ components:
           ssid: "MyWifiNetwork"
           key: "my-wifi-pw"
 
-    wifiDownlink:
+    wifi_down:
+      tags:
+        - name: Network
       summary: Set or request WiFi configuration
       payload:
         type: object
@@ -579,7 +1077,9 @@ components:
           ssid: "MyWifiNetwork"
           key: "wifi-password"
 
-    wifiCxUplink:
+    wifi_cx_up:
+      tags:
+        - name: Network
       summary: WiFi connection information
       payload:
         type: object
@@ -597,8 +1097,9 @@ components:
           name: "wifi_cx"
           connected: true
 
-    # BLE Connection message
-    bleCxUplink:
+    ble_cx_up:
+      tags:
+        - name: Network
       summary: BLE connection status
       payload:
         type: object
@@ -615,8 +1116,9 @@ components:
           name: "ble_cx"
           connected: true
 
-    # BLE Connection message
-    bleCxDownlink:
+    ble_cx_down:
+      tags:
+        - name: Network
       summary: Get the status of the BLE interface
       payload:
         type: object
@@ -629,8 +1131,9 @@ components:
         example:
           name: "ble_cx"
 
-    # Meat Alarm message
-    meatAlarmUplink:
+    meat_alarm_up:
+      tags:
+        - name: Alarms
       summary: Meat alarm configuration
       payload:
         type: object
@@ -662,7 +1165,9 @@ components:
           done_temp: 203
           warm_temp: 170
 
-    meatAlarmDownlink:
+    meat_alarm_down:
+      tags:
+        - name: Alarms
       summary: Set meat alarm configuration
       payload:
         type: object
@@ -694,8 +1199,9 @@ components:
           done_temp: 203
           warm_temp: 170
 
-    # Set Temp Limits message
-    setTempLimitsUplink:
+    set_temp_limits_up:
+      tags:
+        - name: Cooking
       summary: Temperature limit settings
       payload:
         type: object
@@ -716,8 +1222,9 @@ components:
           min: 150
           max: 500
 
-    # Pit Alarm message
-    pitAlarmUplink:
+    pit_alarm_up:
+      tags:
+        - name: Alarms
       summary: Pit alarm configuration
       payload:
         type: object
@@ -738,7 +1245,9 @@ components:
           enabled: true
           range: 25
 
-    pitAlarmDownlink:
+    pit_alarm_down:
+      tags:
+        - name: Alarms
       summary: Set pit alarm configuration
       payload:
         type: object
@@ -759,8 +1268,9 @@ components:
           enabled: true
           range: 25
 
-    # Labels message
-    labelsUplink:
+    labels_up:
+      tags:
+        - name: Cooking
       summary: Probe labels
       payload:
         type: object
@@ -781,7 +1291,9 @@ components:
           name: "labels"
           values: ["Pit", "Brisket", "Butt", "Turkey"]
 
-    labelsDownlink:
+    labels_down:
+      tags:
+        - name: Cooking
       summary: Set probe labels
       payload:
         type: object
@@ -802,7 +1314,9 @@ components:
           name: "labels"
           values: ["Pit", "Brisket", "Butt", "Turkey"]
 
-    soundUplink:
+    sound_up:
+      tags:
+        - name: Device
       summary: Sound configuration and status
       payload:
         type: object
@@ -825,7 +1339,9 @@ components:
           config: "chirps"
           status: "off"
 
-    soundDownlink:
+    sound_down:
+      tags:
+        - name: Device
       summary: Set sound configuration
       payload:
         type: object
@@ -843,8 +1359,9 @@ components:
           name: "sound"
           config: "chirps"
 
-    # PID message
-    pidUplink:
+    pid_up:
+      tags:
+        - name: Fan Control
       summary: PID controller configuration
       payload:
         type: object
@@ -886,7 +1403,9 @@ components:
           min_dc: 1500
           pvl: 2
 
-    pidDownlink:
+    pid_down:
+      tags:
+        - name: Fan Control
       summary: Set PID controller configuration
       payload:
         type: object
@@ -928,8 +1447,9 @@ components:
           min_dc: 1500
           pvl: 2
 
-    # GPID message
-    gpidUplink:
+    gpid_up:
+      tags:
+        - name: Fan Control
       summary: BBQ Guru PID controller configuration
       payload:
         type: object
@@ -970,7 +1490,9 @@ components:
           cyc: 5
           prop: 25
 
-    gpidDownlink:
+    gpid_down:
+      tags:
+        - name: Fan Control
       summary: Set BBQ Guru PID controller configuration
       payload:
         type: object
@@ -1004,8 +1526,9 @@ components:
           cyc: 5
           prop: 25
 
-    # Open Pit message
-    openPitUplink:
+    open_pit_up:
+      tags:
+        - name: Fan Control
       summary: Open pit configuration
       payload:
         type: object
@@ -1013,6 +1536,8 @@ components:
           name:
             type: string
             enum: [open_pit]
+          enabled:
+            type: boolean
           max_pause:
             type: integer
             description: Max open pause time in seconds
@@ -1024,7 +1549,9 @@ components:
           name: "open_pit"
           max_pause: 300
 
-    openPitDownlink:
+    open_pit_down:
+      tags:
+        - name: Fan Control
       summary: Set open pit configuration
       payload:
         type: object
@@ -1042,8 +1569,9 @@ components:
           name: "open_pit"
           max_pause: 300
 
-    # Step message
-    stepUplink:
+    step_up:
+      tags:
+        - name: Cooking
       summary: Step configuration and status
       payload:
         type: object
@@ -1095,7 +1623,9 @@ components:
           time: 7200
           started_at: 1648224000
 
-    stepDownlink:
+    step_down:
+      tags:
+        - name: Cooking
       summary: Set step configuration
       payload:
         type: object
@@ -1138,8 +1668,9 @@ components:
           end_by: "time"
           time: 7200
 
-    # Device Temperature message
-    deviceTempUplink:
+    device_temp_up:
+      tags:
+        - name: Device
       summary: Device temperature
       description: This message is sent when it changes 5 degrees C or 1 degree if device temp is high. (Not supported on 400.)
       payload:
@@ -1157,8 +1688,9 @@ components:
           name: "device_temp"
           value: 85
 
-    # DC Input message
-    dcInputUplink:
+    dc_input_up:
+      tags:
+        - name: Device
       summary: DC input voltage
       description: This uplink is published when dc_input changes 0.1 volts.
       payload:
@@ -1177,8 +1709,9 @@ components:
           name: "dc_input"
           value: 120
 
-    # Meat Alarm Triggered message
-    meatAlarmTriggeredUplink:
+    meat_alarm_triggered_up:
+      tags:
+        - name: Alarms
       summary: Meat alarm triggered
       description: This uplink is published when the meat is done.
       payload:
@@ -1198,8 +1731,9 @@ components:
           name: "meat_alarm_triggered"
           sensor: 1
 
-    # Pit Alarm Active message
-    pitAlarmActiveUplink:
+    pit_alarm_active_up:
+      tags:
+        - name: Alarms
       summary: Pit alarm active
       description: This uplink is published when pit alarm becomes active after being enabled. (It becomes active when the pit temp becomes nearly at the set temp.
       payload:
@@ -1213,8 +1747,9 @@ components:
         example:
           name: "pit_alarm_active"
 
-    # Pit Alarm Triggered message
-    pitAlarmTriggeredUplink:
+    pit_alarm_triggered_up:
+      tags:
+        - name: Alarms
       summary: Pit alarm triggered
       description: This uplink is published when the pit temp goes out of range set by pit alarm if the pit alarm is active.
       payload:
@@ -1228,8 +1763,9 @@ components:
         example:
           name: "pit_alarm_triggered"
 
-    # Vent Advice message
-    ventAdviceUplink:
+    vent_advice_up:
+      tags:
+        - name: Alarms
       summary: Vent advice
       description: This uplink is published when pit temp has been above set temp for a long time.
       payload:
@@ -1243,8 +1779,9 @@ components:
         example:
           name: "vent_advice"
 
-    # Opened message
-    openedUplink:
+    opened_up:
+      tags:
+        - name: Deprecated
       summary: Cooker opened - DEPRECATED - use openPitUplink instead
       description: This uplink is published when the controller detects the cooker is opened.
       payload:
@@ -1258,8 +1795,9 @@ components:
         example:
           name: "opened"
 
-    # Closed message
-    closedUplink:
+    closed_up:
+      tags:
+        - name: Deprecated
       summary: Cooker closed - DEPRECATED - use openPitUplink instead
       description: This uplink is published when the controller detects the cooker is closed.
       payload:
@@ -1273,8 +1811,9 @@ components:
         example:
           name: "closed"
 
-    # Probe Overtemp message
-    probeOvertempUplink:
+    probe_overtemp_up:
+      tags:
+        - name: Alarms
       summary: Probe overtemperature
       payload:
         type: object
@@ -1291,8 +1830,9 @@ components:
           name: "probe_overtemp"
           sensor: 1
 
-    # Device Overtemp message
-    deviceOvertempUplink:
+    device_overtemp_up:
+      tags:
+        - name: Alarms
       summary: Device overtemperature
       payload:
         type: object
@@ -1305,8 +1845,9 @@ components:
         example:
           name: "device_overtemp"
 
-    # WiFi Scan message
-    wifiScanUplink:
+    wifi_scan_up:
+      tags:
+        - name: Network
       summary: WiFi scan results
       description: This uplink is published at startup, and in response to wifi_scan downlink, to show results of discovered access points, one message for each AP discovered.
       payload:
@@ -1320,7 +1861,7 @@ components:
             description: the index from 0 to count - 1 of this message response to the wifi_scan downlink
           count:
             type: integer
-            descritpion: how many wifi_scan messages are being sent in one response to the wifi_scan downlink
+            description: how many wifi_scan messages are being sent in one response to the wifi_scan downlink
           ssid:
             type: string
             description: the ssid of the access point
@@ -1343,7 +1884,9 @@ components:
           ssid: "fb"
           rssi: -550
 
-    wifiScanDownlink:
+    wifi_scan_down:
+      tags:
+        - name: Network
       summary: Request WiFi scan
       payload:
         type: object
@@ -1356,7 +1899,9 @@ components:
         example:
           name: "wifi_scan"
 
-    timerUplink:
+    timer_up:
+      tags:
+        - name: Cooking
       summary: Timer configuration and status
       description: The timer value, if action is not none, counts down. When it gets to zero, the action is performed, either
         changing the internal/effective set temperature to the hold temperature (hold), or sending an alert (alarm).
@@ -1372,7 +1917,7 @@ components:
             description: what to do when the timer expires. If hold, change the internal set temperature to the hold temperature.
           value:
             type: integer
-            descritpion: start value of the timer in seconds
+            description: start value of the timer in seconds
           hold:
             type: integer
             description: the hold temperature
@@ -1401,7 +1946,9 @@ components:
           status: "active"
           ends_at: 1747429645
 
-    timerDownlink:
+    timer_down:
+      tags:
+        - name: Cooking
       summary: Set timer configuration or request timer configuration and status
       payload:
         type: object
@@ -1415,7 +1962,7 @@ components:
             description: what to do when the timer expires. If hold, change the internal set temperature to the hold temperature.
           value:
             type: integer
-            descritpion: start value of the timer in seconds
+            description: start value of the timer in seconds
           hold:
             type: integer
             description: the hold temperature
@@ -1427,8 +1974,10 @@ components:
           value: 14400
           hold: 656
 
-    resetDownlink:
-      summary: Reset different levels of the device: the mqtt connection, the wifi connection, or the processor
+    reset_down:
+      tags:
+        - name: Device
+      summary: "Reset different levels of the device: the mqtt connection, the wifi connection, or the processor"
       payload:
         type: object
         properties:
@@ -1445,7 +1994,9 @@ components:
           name: "reset"
           type: "device"
 
-    logDownlink:
+    log_down:
+      tags:
+        - name: Device
       summary: Set the log level that is output on topic flameboss/<device_id>/log
       payload:
         type: object
@@ -1463,7 +2014,9 @@ components:
           name: "log"
           level: 1
 
-    stateDownlink:
+    state_down:
+      tags:
+        - name: Device
       summary: Turns the cooker off (not supported on most targets because they do not have an on/off state)
       payload:
         type: object
@@ -1479,11 +2032,13 @@ components:
           - value
         example:
           name: "state"
-          type: "idle"
+          value: "idle"
 
 
-    stateUplink:
-      summary: Says what state the cooker is in: idle, run, error, production (trying to pass the production test)
+    state_up:
+      tags:
+        - name: Device
+      summary: "Says what state the cooker is in: idle, run, error, production (trying to pass the production test)"
       payload:
         type: object
         properties:
