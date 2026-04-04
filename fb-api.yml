@@ -53,6 +53,8 @@ info:
 
     All downlinks from your app to the controller are published on topic `flameboss/<device_id>/recv`.
 
+    Mobile apps can subscribe to `user/<user_id>/recv` to receive asynchronous messages from the server, such as device online/offline notifications. Apps publish uplinks to this topic to request updates from the server.
+
     ## LAN MQTT
 
     If your controller is on the same local network as your app, you can send and receive the same JSON messages using the controller's
@@ -258,6 +260,24 @@ channels:
         $ref: '#/components/messages/alarm_ack_down'
       sync_down:
         $ref: '#/components/messages/sync_down'
+
+  user/{userId}/recv:
+    summary: Messages between the server and mobile apps
+    description: |
+      Mobile apps subscribe to this topic to receive asynchronous messages from the server.
+      Apps publish uplinks to this topic to request updates.
+    parameters:
+      userId:
+        description: The integer unique identifier of the user
+    servers:
+      - $ref: '#/servers/production'
+    messages:
+      connected_down:
+        $ref: '#/components/messages/connected_down'
+      connected_up:
+        $ref: '#/components/messages/connected_up'
+      cook_note_down:
+        $ref: '#/components/messages/cook_note_down'
 
 operations:
   # Cooking
@@ -701,6 +721,33 @@ operations:
       - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/synced_up'
     tags:
       - name: Device
+
+  # User
+  "connected downlink":
+    action: send
+    channel:
+      $ref: '#/channels/user~1{userId}~1recv'
+    messages:
+      - $ref: '#/channels/user~1{userId}~1recv/messages/connected_down'
+    tags:
+      - name: User
+  "connected uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/user~1{userId}~1recv'
+    messages:
+      - $ref: '#/channels/user~1{userId}~1recv/messages/connected_up'
+    tags:
+      - name: User
+
+  "cook_note downlink":
+    action: send
+    channel:
+      $ref: '#/channels/user~1{userId}~1recv'
+    messages:
+      - $ref: '#/channels/user~1{userId}~1recv/messages/cook_note_down'
+    tags:
+      - name: User
 
   # Deprecated
   "opened uplink":
@@ -2177,3 +2224,74 @@ components:
         example:
           name: "state"
           type: "run"
+
+    connected_down:
+      tags:
+        - name: User
+      summary: Device connected notification from the server
+      description: Sent by the server to mobile apps when a device connects to the MQTT broker.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [connected]
+          device_id:
+            type: integer
+            description: The device that connected
+          server:
+            type: string
+            description: The MQTT broker host the device connected to. If different from the app's current broker, the app should reconnect to this server for that device.
+        required:
+          - name
+          - server
+        example:
+          name: "connected"
+          device_id: 12345
+          server: "myflameboss.com"
+
+    connected_up:
+      tags:
+        - name: User
+      summary: Request device connected status from the server
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [connected]
+        required:
+          - name
+        example:
+          name: "connected"
+
+    cook_note_down:
+      tags:
+        - name: User
+      summary: Cook note change notification
+      description: Sent by the server to mobile apps when a cook note is created, updated, or deleted. The app should fetch the note content via the REST API.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [cook_note]
+          action:
+            type: string
+            enum: [created, updated, deleted]
+          id:
+            type: integer
+            description: The cook note ID
+          cook_id:
+            type: integer
+            description: The cook this note belongs to
+        required:
+          - name
+          - action
+          - id
+          - cook_id
+        example:
+          name: "cook_note"
+          action: "created"
+          id: 42
+          cook_id: 12345
