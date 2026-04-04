@@ -31,6 +31,8 @@ info:
     An app can request updates immediately by sending downlink messages with only the name property.
     For example, to request an immediate update on temperatures, send downlink `{"name":"temps"}` to the target.
 
+    Not all uplinks and downlinks are supported on all targets. For example, a target without Bluetooth does not send or receive ble_cx messages, and a target without a display does not support the sound message.
+
     ## MQTT
 
     Broker host: myflameboss.com
@@ -184,8 +186,12 @@ channels:
         $ref: '#/components/messages/device_overtemp_up'
       wifi_scan_up:
         $ref: '#/components/messages/wifi_scan_up'
+      mqtt_up:
+        $ref: '#/components/messages/mqtt_up'
       ble_cx_up:
         $ref: '#/components/messages/ble_cx_up'
+      synced_up:
+        $ref: '#/components/messages/synced_up'
       timer_up:
         $ref: '#/components/messages/timer_up'
       state_up:
@@ -242,10 +248,12 @@ channels:
         $ref: '#/components/messages/timer_down'
       state_down:
         $ref: '#/components/messages/state_down'
+      mqtt_down:
+        $ref: '#/components/messages/mqtt_down'
       reset_down:
         $ref: '#/components/messages/reset_down'
-      log_down:
-        $ref: '#/components/messages/log_down'
+      log_level_down:
+        $ref: '#/components/messages/log_level_down'
       alarm_ack_down:
         $ref: '#/components/messages/alarm_ack_down'
       sync_down:
@@ -531,6 +539,22 @@ operations:
       - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/ble_cx_down'
     tags:
       - name: Network
+  "mqtt uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/mqtt_up'
+    tags:
+      - name: Network
+  "mqtt downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/mqtt_down'
+    tags:
+      - name: Network
   "ip uplink":
     action: receive
     channel:
@@ -637,12 +661,12 @@ operations:
       - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/reset_down'
     tags:
       - name: Device
-  "log downlink":
+  "log_level downlink":
     action: send
     channel:
       $ref: '#/channels/flameboss~1{deviceId}~1recv'
     messages:
-      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/log_down'
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/log_level_down'
     tags:
       - name: Device
   "device_temp uplink":
@@ -667,6 +691,14 @@ operations:
       $ref: '#/channels/flameboss~1{deviceId}~1recv'
     messages:
       - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/sync_down'
+    tags:
+      - name: Device
+  "synced uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/synced_up'
     tags:
       - name: Device
 
@@ -704,6 +736,21 @@ components:
           - name
         example:
           name: "sync"
+
+    synced_up:
+      tags:
+        - name: Device
+      summary: Sent after all sync uplinks have been published
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [synced]
+        required:
+          - name
+        example:
+          name: "synced"
 
     alarm_ack_down:
       tags:
@@ -825,21 +872,17 @@ components:
           name:
             type: string
             enum: [dns]
-          dhcp:
-            type: boolean
           ips:
             type: array
             items:
               type: string
-            description: Array of strings of IP addresses, all but first element may be ignored
+            description: Array of strings of IP addresses, up to 2
         required:
           - name
-          - dhcp
           - ips
         example:
           name: "dns"
-          dhcp: true
-          ips: ["192.168.1.100"]
+          ips: ["192.168.1.100", "8.8.8.8"]
 
     dns_down:
       tags:
@@ -851,23 +894,18 @@ components:
           name:
             type: string
             enum: [dns]
-          dhcp:
-            type: boolean
           ips:
             type: array
             items:
               type: string
             description: |-
-              Array of strings of IP addresses.
-              All but first element may be ignored if the device
-              does not support more than one DNS address.
-              This property is required if dhcp is false, and optional-and-ignored if dhcp is true.
+              Array of strings of IP addresses, up to 2.
+              Omit to request current DNS configuration.
         required:
           - name
-          - dhcp
         example:
           name: "dns"
-          dhcp: true
+          ips: ["192.168.1.100"]
 
     ip_up:
       tags:
@@ -989,23 +1027,19 @@ components:
           name:
             type: string
             enum: [set_temp]
-          min:
-            type: integer
-          max:
+          value:
             type: integer
         required:
           - name
-          - min
-          - max
+          - value
         example:
           name: "set_temp"
-          min: 150
-          max: 500
+          value: 250
 
     set_temp_down:
       tags:
         - name: Cooking
-      summary: Request set temperature
+      summary: Set the set temperature or request current set temperature
       payload:
         type: object
         properties:
@@ -1014,9 +1048,9 @@ components:
             enum: [set_temp]
           value:
             type: integer
+            description: Omit to request current set temperature
         required:
           - name
-          - value
         example:
           name: "set_temp"
           value: 250
@@ -1089,13 +1123,102 @@ components:
             enum: [wifi_cx]
           connected:
             type: boolean
-            description: wifi is connected to an access point
+            description: WiFi is connected to an access point. Omitted on single-radio targets where receiving this message implies connected.
+          rssi:
+            type: integer
+            description: RSSI signal strength
+          code:
+            type: integer
+            description: Last error code from attempting to join the configured access point. Useful for diagnosing whether the SSID or password is wrong.
         required:
           - name
-          - connected
         example:
           name: "wifi_cx"
-          connected: true
+          rssi: -55
+          code: 0
+
+    mqtt_up:
+      tags:
+        - name: Network
+      summary: MQTT broker configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [mqtt]
+          host:
+            type: string
+            description: MQTT broker hostname
+          ip:
+            type: string
+            description: MQTT broker IP address
+          port:
+            type: integer
+            description: MQTT broker port
+          tls:
+            type: boolean
+            description: TLS enabled
+          username:
+            type: string
+            description: MQTT username
+          local_en:
+            type: boolean
+            description: Local MQTT broker enabled
+          keepalive:
+            type: integer
+            description: MQTT keepalive interval in seconds
+        required:
+          - name
+          - host
+          - ip
+          - port
+          - tls
+          - username
+          - local_en
+          - keepalive
+        example:
+          name: "mqtt"
+          host: "myflameboss.com"
+          ip: "1.2.3.4"
+          port: 8883
+          tls: true
+          username: "fb_12345"
+          local_en: true
+          keepalive: 60
+
+    mqtt_down:
+      tags:
+        - name: Network
+      summary: Set MQTT broker configuration or request current configuration
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [mqtt]
+          host:
+            type: string
+            description: MQTT broker hostname
+          ip:
+            type: string
+            description: MQTT broker IP address
+          tls:
+            type: boolean
+            description: TLS enabled
+          keepalive:
+            type: integer
+            description: MQTT keepalive interval in seconds, minimum 10, 0 to disable
+          timeout:
+            type: integer
+            description: MQTT timeout in seconds, minimum 5, must be less than keepalive
+        required:
+          - name
+        example:
+          name: "mqtt"
+          host: "myflameboss.com"
+          keepalive: 60
+          timeout: 10
 
     ble_cx_up:
       tags:
@@ -1538,12 +1661,12 @@ components:
             enum: [open_pit]
           enabled:
             type: boolean
+            description: Default is true if omitted
           max_pause:
             type: integer
             description: Max open pause time in seconds
         required:
           - name
-          - enabled
           - max_pause
         example:
           name: "open_pit"
@@ -1994,7 +2117,7 @@ components:
           name: "reset"
           type: "device"
 
-    log_down:
+    log_level_down:
       tags:
         - name: Device
       summary: Set the log level that is output on topic flameboss/<device_id>/log
@@ -2003,16 +2126,16 @@ components:
         properties:
           name:
             type: string
-            enum: [log]
-          level:
-            type: integer
-            description: 0 = debug, 1 = info, 2 = warn, 3 = error
+            enum: [log_level]
+          value:
+            type: string
+            enum: [info, warn]
         required:
           - name
-          - level
+          - value
         example:
-          name: "log"
-          level: 1
+          name: "log_level"
+          value: "info"
 
     state_down:
       tags:
