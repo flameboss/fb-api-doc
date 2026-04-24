@@ -4,7 +4,7 @@
   "info": {
     "title": "Flame Boss MQTT API",
     "version": "1.0.1",
-    "description": "April 29, 2025\n## Overview\n\nAPI for interacting with Flame Boss temperature controllers via MQTT/TCP/IP network and\nBluetooth.\n\nGet the latest version of this document in source code at\n\nhttps://github.com/flameboss/fb-api-doc\n\nand published on the web at\n\nhttps://myflameboss.com/doc/api/index.html\n\n## Message Format\nWe use the following terms:\n\n- The **target** or **device** is the controller or sensor.\n- An **uplink** is a message published by the target for the cloud or your application.\n- A **downlink** is a message published by the cloud or by your application to the target.\n\nEvery message is a JSON object with at least one property with key \"name\".\n\nThe controller sends uplink messages when a setting or reading changes.\n\nAn app can request updates immediately by sending downlink messages with only the name property.\nFor example, to request an immediate update on temperatures, send downlink `{\"name\":\"temps\"}` to the target.\n\nNot all uplinks and downlinks are supported on all targets. For example, a target without Bluetooth does not send or receive ble_cx messages, and a target without a display does not support the sound message.\n\n## MQTT\n\nBroker host: myflameboss.com\nProtocol: MQTT v3.1.1\nPort: 8883 for secure TLS connections, 1883 for non-TLS connections\n\n### MQTT Credentials\nSign-up and login at myflameboss.com and visit your dev page to obtain your MQTT credentials:\n\nhttps://myflameboss.com/users/dev\n\n### MQTT Topics\nMost uplinks are published on topic `flameboss/<device_id>/send/data`.\n\nPublic cook data is published on topic `flameboss/<device_id>/send/open`.\n\n(Subscribe to both send topics if the device is added to your account; otherwise just subscribe to the open send topic.)\n\nAll downlinks from your app to the controller are published on topic `flameboss/<device_id>/recv`.\n\n## LAN MQTT\n\nIf your controller is on the same local network as your app, you can send and receive the same JSON messages using the controller's\ninternal MQTT broker on port 1883. Here are the vitals:\n\nProtocol: MQTT (non-TLS) v3.1.1\nPort: 1883\nUsername: fb\nPassword: The Device PIN (shown on the controller's settings screen)\nTopics: Publish downlinks to flameboss/<device_id>/recv and listen for uplinks on flameboss/<device_id>/send/data\n\n## Bluetooth\n\nTargets send and receive the same JSON messages over Bluetooth as they do over the network and MQTT.\n\nAdd a newline after every JSON object when both sending to and receiving from the target.\n\nHere are the UUIDs required.\n\n### BBQ Guru\n\nService:\n\nEA2B0001-C5CE-41A0-A76F-715FB5F63288\n\nCharacteristics:\n\nEA2B0002-C5CE-41A0-A76F-715FB5F63288 Rx (app sends to this characteristic)\n\nEA2B0003-C5CE-41A0-A76F-715FB5F63288 Tx (app reads messages from this characteristic)\n\n### Flame Boss, Egg Genius, Cookshack and other targets\n\nService:\n\n838F0001-5250-4C31-BEBF-4020B71E8574\n\nCharacteristics:\n\n6E400002-B5A3-F393-E0A9-E50E24DCCA9E Rx (app sends to this characteristic)\n\n6E400003-B5A3-F393-E0A9-E50E24DCCA9E Tx  (app reads messages from this characteristic)",
+    "description": "April 29, 2025\n## Overview\n\nAPI for interacting with Flame Boss temperature controllers via MQTT/TCP/IP network and\nBluetooth.\n\nGet the latest version of this document in source code at\n\nhttps://github.com/flameboss/fb-api-doc\n\nand published on the web at\n\nhttps://myflameboss.com/doc/api/index.html\n\n## Message Format\nWe use the following terms:\n\n- The **target** or **device** is the controller or sensor.\n- An **uplink** is a message published by the target for the cloud or your application.\n- A **downlink** is a message published by the cloud or by your application to the target.\n\nEvery message is a JSON object with at least one property with key \"name\".\n\nThe controller sends uplink messages when a setting or reading changes.\n\nAn app can request updates immediately by sending downlink messages with only the name property.\nFor example, to request an immediate update on temperatures, send downlink `{\"name\":\"temps\"}` to the target.\n\nNot all uplinks and downlinks are supported on all targets. For example, a target without Bluetooth does not send or receive ble_cx messages, and a target without a display does not support the sound message.\n\n## MQTT\n\nBroker host: myflameboss.com\nProtocol: MQTT v3.1.1\nPort: 8883 for secure TLS connections, 1883 for non-TLS connections\n\n### MQTT Credentials\nSign-up and login at myflameboss.com and visit your dev page to obtain your MQTT credentials:\n\nhttps://myflameboss.com/users/dev\n\n### MQTT Topics\nMost uplinks are published on topic `flameboss/<device_id>/send/data`.\n\nPublic cook data is published on topic `flameboss/<device_id>/send/open`.\n\n(Subscribe to both send topics if the device is added to your account; otherwise just subscribe to the open send topic.)\n\nAll downlinks from your app to the controller are published on topic `flameboss/<device_id>/recv`.\n\nMobile apps can subscribe to `user/<user_id>/recv` to receive asynchronous messages from the server, such as device online/offline notifications. Apps publish uplinks to this topic to request updates from the server.\n\n## LAN MQTT\n\nIf your controller is on the same local network as your app, you can send and receive the same JSON messages using the controller's\ninternal MQTT broker on port 1883. Here are the vitals:\n\nProtocol: MQTT (non-TLS) v3.1.1\nPort: 1883\nUsername: fb\nPassword: The Device PIN (shown on the controller's settings screen)\nTopics: Publish downlinks to flameboss/<device_id>/recv and listen for uplinks on flameboss/<device_id>/send/data\n\n## Bluetooth\n\nTargets send and receive the same JSON messages over Bluetooth as they do over the network and MQTT.\n\nAdd a newline after every JSON object when both sending to and receiving from the target.\n\nHere are the UUIDs required.\n\n### BBQ Guru\n\nService:\n\nEA2B0001-C5CE-41A0-A76F-715FB5F63288\n\nCharacteristics:\n\nEA2B0002-C5CE-41A0-A76F-715FB5F63288 Rx (app sends to this characteristic)\n\nEA2B0003-C5CE-41A0-A76F-715FB5F63288 Tx (app reads messages from this characteristic)\n\n### Flame Boss, Egg Genius, Cookshack and other targets\n\nService:\n\n838F0001-5250-4C31-BEBF-4020B71E8574\n\nCharacteristics:\n\n6E400002-B5A3-F393-E0A9-E50E24DCCA9E Rx (app sends to this characteristic)\n\n6E400003-B5A3-F393-E0A9-E50E24DCCA9E Tx  (app reads messages from this characteristic)",
     "license": {
       "name": "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License",
       "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
@@ -2579,6 +2579,65 @@
           "x-parser-unique-object-id": "log_level_down",
           "x-parser-message-name": "log_level_down"
         },
+        "dl_start_down": {
+          "tags": [
+            {
+              "name": "Device"
+            }
+          ],
+          "summary": "Initiate a firmware update. **Warning: do not use this unless you know what you are doing — sending an incorrect version or a corrupt image will brick the device.**",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "dl_start"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-243>"
+              },
+              "target": {
+                "type": "string",
+                "enum": [
+                  "app"
+                ],
+                "description": "Must be \"app\". Other values are ignored.",
+                "x-parser-schema-id": "<anonymous-schema-244>"
+              },
+              "version": {
+                "type": "string",
+                "description": "Firmware version string (e.g. \"1.2.3\"). Must be strictly newer than the version currently running on the device, otherwise the downlink is ignored.",
+                "x-parser-schema-id": "<anonymous-schema-245>"
+              },
+              "path": {
+                "type": "string",
+                "description": "Path component appended to the broker's fw-dl base URL to form the download URL. The device fetches firmware from `http(s)://<broker>/fw-dl/<path>`.",
+                "x-parser-schema-id": "<anonymous-schema-246>"
+              },
+              "length": {
+                "type": "integer",
+                "description": "Expected byte length of the firmware image. Optional but recommended.",
+                "x-parser-schema-id": "<anonymous-schema-247>"
+              }
+            },
+            "required": [
+              "name",
+              "target",
+              "version",
+              "path"
+            ],
+            "example": {
+              "name": "dl_start",
+              "target": "app",
+              "version": "1.2.3",
+              "path": "fb500-1.2.3.bin",
+              "length": 524288
+            },
+            "x-parser-schema-id": "<anonymous-schema-242>"
+          },
+          "x-parser-unique-object-id": "dl_start_down",
+          "x-parser-message-name": "dl_start_down"
+        },
         "alarm_ack_down": {
           "tags": [
             {
@@ -2594,7 +2653,7 @@
                 "enum": [
                   "alarm_ack"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-243>"
+                "x-parser-schema-id": "<anonymous-schema-249>"
               }
             },
             "required": [
@@ -2603,7 +2662,7 @@
             "example": {
               "name": "alarm_ack"
             },
-            "x-parser-schema-id": "<anonymous-schema-242>"
+            "x-parser-schema-id": "<anonymous-schema-248>"
           },
           "x-parser-unique-object-id": "alarm_ack_down",
           "x-parser-message-name": "alarm_ack_down"
@@ -2623,7 +2682,7 @@
                 "enum": [
                   "sync"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-245>"
+                "x-parser-schema-id": "<anonymous-schema-251>"
               }
             },
             "required": [
@@ -2632,13 +2691,155 @@
             "example": {
               "name": "sync"
             },
-            "x-parser-schema-id": "<anonymous-schema-244>"
+            "x-parser-schema-id": "<anonymous-schema-250>"
           },
           "x-parser-unique-object-id": "sync_down",
           "x-parser-message-name": "sync_down"
         }
       },
       "x-parser-unique-object-id": "flameboss/{deviceId}/recv"
+    },
+    "user/{userId}/recv": {
+      "summary": "Messages between the server and mobile apps",
+      "description": "Mobile apps subscribe to this topic to receive asynchronous messages from the server.\nApps publish uplinks to this topic to request updates.\n",
+      "parameters": {
+        "userId": {
+          "description": "The integer unique identifier of the user"
+        }
+      },
+      "servers": [
+        "$ref:$.servers.production"
+      ],
+      "messages": {
+        "connected_down": {
+          "tags": [
+            {
+              "name": "User"
+            }
+          ],
+          "summary": "Device connected notification from the server",
+          "description": "Sent by the server to mobile apps when a device connects to the MQTT broker.",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "connected"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-254>"
+              },
+              "device_id": {
+                "type": "integer",
+                "description": "The device that connected",
+                "x-parser-schema-id": "<anonymous-schema-255>"
+              },
+              "server": {
+                "type": "string",
+                "description": "The MQTT broker host the device connected to. If different from the app's current broker, the app should reconnect to this server for that device.",
+                "x-parser-schema-id": "<anonymous-schema-256>"
+              }
+            },
+            "required": [
+              "name",
+              "server"
+            ],
+            "example": {
+              "name": "connected",
+              "device_id": 12345,
+              "server": "myflameboss.com"
+            },
+            "x-parser-schema-id": "<anonymous-schema-253>"
+          },
+          "x-parser-unique-object-id": "connected_down",
+          "x-parser-message-name": "connected_down"
+        },
+        "connected_up": {
+          "tags": [
+            {
+              "name": "User"
+            }
+          ],
+          "summary": "Request device connected status from the server",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "connected"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-258>"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "example": {
+              "name": "connected"
+            },
+            "x-parser-schema-id": "<anonymous-schema-257>"
+          },
+          "x-parser-unique-object-id": "connected_up",
+          "x-parser-message-name": "connected_up"
+        },
+        "cook_note_down": {
+          "tags": [
+            {
+              "name": "User"
+            }
+          ],
+          "summary": "Cook note change notification",
+          "description": "Sent by the server to mobile apps when a cook note is created, updated, or deleted. The app should fetch the note content via the REST API.",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "cook_note"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-260>"
+              },
+              "action": {
+                "type": "string",
+                "enum": [
+                  "created",
+                  "updated",
+                  "deleted"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-261>"
+              },
+              "id": {
+                "type": "integer",
+                "description": "The cook note ID",
+                "x-parser-schema-id": "<anonymous-schema-262>"
+              },
+              "cook_id": {
+                "type": "integer",
+                "description": "The cook this note belongs to",
+                "x-parser-schema-id": "<anonymous-schema-263>"
+              }
+            },
+            "required": [
+              "name",
+              "action",
+              "id",
+              "cook_id"
+            ],
+            "example": {
+              "name": "cook_note",
+              "action": "created",
+              "id": 42,
+              "cook_id": 12345
+            },
+            "x-parser-schema-id": "<anonymous-schema-259>"
+          },
+          "x-parser-unique-object-id": "cook_note_down",
+          "x-parser-message-name": "cook_note_down"
+        }
+      },
+      "x-parser-unique-object-id": "user/{userId}/recv"
     }
   },
   "operations": {
@@ -3292,6 +3493,19 @@
       ],
       "x-parser-unique-object-id": "log_level downlink"
     },
+    "dl_start downlink": {
+      "action": "send",
+      "channel": "$ref:$.channels.flameboss/{deviceId}/recv",
+      "messages": [
+        "$ref:$.channels.flameboss/{deviceId}/recv.messages.dl_start_down"
+      ],
+      "tags": [
+        {
+          "name": "Device"
+        }
+      ],
+      "x-parser-unique-object-id": "dl_start downlink"
+    },
     "device_temp uplink": {
       "action": "receive",
       "channel": "$ref:$.channels.flameboss/{deviceId}/send/data",
@@ -3343,6 +3557,45 @@
         }
       ],
       "x-parser-unique-object-id": "synced uplink"
+    },
+    "connected downlink": {
+      "action": "send",
+      "channel": "$ref:$.channels.user/{userId}/recv",
+      "messages": [
+        "$ref:$.channels.user/{userId}/recv.messages.connected_down"
+      ],
+      "tags": [
+        {
+          "name": "User"
+        }
+      ],
+      "x-parser-unique-object-id": "connected downlink"
+    },
+    "connected uplink": {
+      "action": "receive",
+      "channel": "$ref:$.channels.user/{userId}/recv",
+      "messages": [
+        "$ref:$.channels.user/{userId}/recv.messages.connected_up"
+      ],
+      "tags": [
+        {
+          "name": "User"
+        }
+      ],
+      "x-parser-unique-object-id": "connected uplink"
+    },
+    "cook_note downlink": {
+      "action": "send",
+      "channel": "$ref:$.channels.user/{userId}/recv",
+      "messages": [
+        "$ref:$.channels.user/{userId}/recv.messages.cook_note_down"
+      ],
+      "tags": [
+        {
+          "name": "User"
+        }
+      ],
+      "x-parser-unique-object-id": "cook_note downlink"
     },
     "opened uplink": {
       "action": "receive",
@@ -3427,8 +3680,12 @@
       "timer_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.timer_down",
       "reset_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.reset_down",
       "log_level_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.log_level_down",
+      "dl_start_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.dl_start_down",
       "state_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.state_down",
-      "state_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.state_up"
+      "state_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.state_up",
+      "connected_down": "$ref:$.channels.user/{userId}/recv.messages.connected_down",
+      "connected_up": "$ref:$.channels.user/{userId}/recv.messages.connected_up",
+      "cook_note_down": "$ref:$.channels.user/{userId}/recv.messages.cook_note_down"
     }
   },
   "x-parser-spec-parsed": true,

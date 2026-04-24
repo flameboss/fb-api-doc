@@ -256,6 +256,8 @@ channels:
         $ref: '#/components/messages/reset_down'
       log_level_down:
         $ref: '#/components/messages/log_level_down'
+      dl_start_down:
+        $ref: '#/components/messages/dl_start_down'
       alarm_ack_down:
         $ref: '#/components/messages/alarm_ack_down'
       sync_down:
@@ -687,6 +689,14 @@ operations:
       $ref: '#/channels/flameboss~1{deviceId}~1recv'
     messages:
       - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/log_level_down'
+    tags:
+      - name: Device
+  "dl_start downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/dl_start_down'
     tags:
       - name: Device
   "device_temp uplink":
@@ -2183,6 +2193,41 @@ components:
         example:
           name: "log_level"
           value: "info"
+
+    dl_start_down:
+      tags:
+        - name: Device
+      summary: "Initiate a firmware update. **Warning: do not use this unless you know what you are doing — sending an incorrect version or a corrupt image will brick the device.**"
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [dl_start]
+          target:
+            type: string
+            enum: [app]
+            description: Must be "app". Other values are ignored.
+          version:
+            type: string
+            description: Firmware version string (e.g. "1.2.3"). Must be strictly newer than the version currently running on the device, otherwise the downlink is ignored.
+          path:
+            type: string
+            description: Path component appended to the broker's fw-dl base URL to form the download URL. The device fetches firmware from `http(s)://<broker>/fw-dl/<path>`.
+          length:
+            type: integer
+            description: Expected byte length of the firmware image. Optional but recommended.
+        required:
+          - name
+          - target
+          - version
+          - path
+        example:
+          name: "dl_start"
+          target: "app"
+          version: "1.2.3"
+          path: "fb500-1.2.3.bin"
+          length: 524288
 
     state_down:
       tags:
