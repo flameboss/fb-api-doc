@@ -194,6 +194,8 @@ channels:
         $ref: '#/components/messages/ble_cx_up'
       synced_up:
         $ref: '#/components/messages/synced_up'
+      dl_progress_up:
+        $ref: '#/components/messages/dl_progress_up'
       timer_up:
         $ref: '#/components/messages/timer_up'
       state_up:
@@ -699,6 +701,14 @@ operations:
       - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/dl_start_down'
     tags:
       - name: Device
+  "dl_progress uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/dl_progress_up'
+    tags:
+      - name: Device
   "device_temp uplink":
     action: receive
     channel:
@@ -793,6 +803,36 @@ components:
           - name
         example:
           name: "sync"
+
+    dl_progress_up:
+      tags:
+        - name: Device
+      summary: Published periodically during a firmware update to report download progress
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [dl_progress]
+          target:
+            type: string
+            enum: [app]
+          version:
+            type: string
+            description: Version string of the firmware being downloaded (e.g. "1.2.3")
+          percent:
+            type: integer
+            description: Download progress as a percentage from 0 to 100
+        required:
+          - name
+          - target
+          - version
+          - percent
+        example:
+          name: "dl_progress"
+          target: "app"
+          version: "1.2.3"
+          percent: 42
 
     synced_up:
       tags:
