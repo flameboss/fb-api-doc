@@ -1,0 +1,47 @@
+# Home Assistant add-on manifest for the Flame Boss relay.
+# Reference packaging — for distribution, move this addon/ into a dedicated
+# add-on repository (one with a top-level repository.yaml). See DOCS.md.
+name: Flame Boss
+version: "0.1.0"
+slug: flameboss
+description: >-
+  Relay Flame Boss controllers into Home Assistant over MQTT, with automatic
+  entity discovery. Follows devices across Flame Boss servers automatically.
+url: https://github.com/flameboss/fb-api-doc/tree/master/home-assistant
+arch:
+  - aarch64
+  - amd64
+  - armv7
+  - armhf
+  - i386
+startup: application
+boot: auto
+init: false
+
+# Declares a dependency on an MQTT broker (e.g. the Mosquitto broker add-on)
+# and lets run.sh read its credentials via bashio.
+services:
+  - mqtt:need
+
+options:
+  user_id: 0
+  fb_user: ""
+  fb_token: ""
+  env: test
+  units: f
+  allow_servers:
+    - flameboss.com
+
+schema:
+  user_id: int(1,)
+  fb_user: str
+  fb_token: password
+  env: list(prod|test)
+  units: list(f|c)
+  allow_servers:
+    - str
+
+# Prebuilt images published by the build workflow. The Supervisor pulls these
+# instead of building locally. {arch} is substituted per architecture.
+# To build/install locally from source before images exist, comment this out.
+image: ghcr.io/flameboss/{arch}-addon-flameboss

@@ -1,0 +1,7 @@
+# Add-on repository manifest. Belongs at the ROOT of the distribution repo
+# (e.g. github.com/flameboss/hassio-addons), with each add-on in its own
+# subfolder — the `addon/` dir from this doc repo becomes `flameboss/`.
+# See ../addon/DOCS.md → "Distributing this add-on".
+name: Flame Boss Add-ons
+url: https://github.com/flameboss/hassio-addons
+maintainer: Flame Boss <support@flameboss.com>
