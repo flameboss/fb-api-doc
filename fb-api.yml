@@ -148,6 +148,8 @@ channels:
         $ref: '#/components/messages/wifi_up'
       wifi_cx_up:
         $ref: '#/components/messages/wifi_cx_up'
+      local_access_up:
+        $ref: '#/components/messages/local_access_up'
       meat_alarm_up:
         $ref: '#/components/messages/meat_alarm_up'
       set_temp_limits_up:
@@ -230,6 +232,8 @@ channels:
         $ref: '#/components/messages/wifi_down'
       wifi_scan_down:
         $ref: '#/components/messages/wifi_scan_down'
+      local_access_down:
+        $ref: '#/components/messages/local_access_down'
       ble_cx_down:
         $ref: '#/components/messages/ble_cx_down'
       meat_alarm_down:
@@ -545,6 +549,22 @@ operations:
       $ref: '#/channels/flameboss~1{deviceId}~1recv'
     messages:
       - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/wifi_scan_down'
+    tags:
+      - name: Network
+  "local_access uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/local_access_up'
+    tags:
+      - name: Network
+  "local_access downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/local_access_down'
     tags:
       - name: Network
   "ble_cx uplink":
@@ -1233,6 +1253,63 @@ components:
           name: "wifi_cx"
           rssi: -55
           code: 0
+
+    local_access_up:
+      tags:
+        - name: Network
+      summary: Local (LAN) network access mode
+      description: |
+        Reports the target's current local access mode, which controls whether the target
+        accepts inbound connections to its internal MQTT broker and web server over the LAN.
+        See the LAN MQTT section for connection details.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [local_access]
+          value:
+            type: string
+            enum: [none, authenticated, open]
+            description: |
+              Local access mode:
+              - `none`: No inbound LAN connections are allowed.
+              - `authenticated`: Inbound LAN connections are allowed with MQTT authentication (username `fb`, password is the device PIN).
+              - `open`: Retired. Unauthenticated inbound LAN connections are no longer supported.
+        required:
+          - name
+          - value
+        example:
+          name: "local_access"
+          value: "authenticated"
+
+    local_access_down:
+      tags:
+        - name: Network
+      summary: Set or request local (LAN) network access mode
+      description: |
+        Sets the target's local access mode. Send a message with only the `name` property to
+        request the current value without changing it. The target replies with a `local_access`
+        uplink. Setting `value` to `open` is rejected because unauthenticated inbound LAN
+        connections are no longer supported.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [local_access]
+          value:
+            type: string
+            enum: [none, authenticated]
+            description: |
+              Local access mode:
+              - `none`: Disallow inbound LAN connections.
+              - `authenticated`: Allow inbound LAN connections with MQTT authentication (username `fb`, password is the device PIN).
+        required:
+          - name
+        example:
+          name: "local_access"
+          value: "authenticated"
 
     mqtt_up:
       tags:
