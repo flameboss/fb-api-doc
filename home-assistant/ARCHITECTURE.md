@@ -56,34 +56,55 @@ Authenticate to the directory broker with the user's MQTT credentials (the
    { "name": "connected" }
    ```
 
-2. **Receive a `connected` message per online device** on
-   `user/<user_id>/recv`:
+2. **Receive a device-less `connected`** naming the server THIS connection
+   landed on:
 
    ```json
-   { "name": "connected", "device_id": 123456, "server": "s7.myflameboss.com" }
+   { "name": "connected", "server": "s1.fb.oak.flameboss.com" }
+   ```
+
+   The directory host is an entry point that resolves to one of the servers;
+   this message tells the client the canonical FQDN it is actually connected to.
+
+3. **Receive a `connected` per online device**, each naming that device's
+   server:
+
+   ```json
+   { "name": "connected", "device_id": 123456, "server": "s1.fb.oak.flameboss.com" }
    ```
 
    The `server` field is the FQDN of the specific server that device is
    **currently** connected to.
 
+### Reusing the connection you're already on
+
+Because the device-less `connected` (step 2) tells the client which server its
+directory connection is on, a device whose `server` equals that FQDN is served
+**on the existing connection** — the client does not dial a second connection to
+a server it is already connected to. It opens a new connection only for a server
+it isn't connected to yet. So the directory connection is not purely
+control-plane; it also carries telemetry for the devices that live on the server
+it landed on.
+
 ### No polling required
 
 Any time a device connects, **every** server emits the `connected` message for
-it. So after the initial announce, the client simply keeps its directory
-connection open and reacts to `connected` messages as they arrive. A device that
-**migrates** to another server reconnects there and re-announces with the new
-`server` value — which is the client's signal to re-route. There is no need to
-poll a status endpoint.
+it. So after the initial announce, the client keeps its directory connection
+open and reacts to `connected` messages as they arrive. A device that
+**migrates** to another server re-announces with the new `server` value — the
+client's signal to move it onto (or open) that server's connection. There is no
+status endpoint to poll.
 
 ### Device data topics
 
-Once the client knows a device is on `server`, it opens an MQTT connection to
-that server and uses:
-
 | Topic | Direction | Purpose |
 | --- | --- | --- |
-| `flameboss/<device_id>/send/#` | device → client | Telemetry. The `send/open` message (`name:"temps"`) carries live probe data. |
+| `flameboss/<device_id>/send/open` | device → client | Live telemetry (`name:"temps"`) — probe temps, set temp, blower. |
+| `flameboss/<device_id>/send/data` | device → client | Additional device data messages. |
 | `flameboss/<device_id>/recv` | client → device | Commands (e.g. set target temperature). |
+
+Subscribe to these **explicit** subtopics, not a `send/#` wildcard — the server
+ACL may silently ignore a wildcard subscription (no error, no messages).
 
 ---
 
@@ -109,12 +130,15 @@ config, no restarts to reconfigure.
 
 Design principles:
 
-- **Control plane / data plane split.** The directory connection (`user/<id>/*`)
-  is the control plane — it decides *which server* each device is on. Per-server
-  connections are the data plane — they move telemetry and commands.
-- **Connections keyed by server, not device.** Two devices on the same server
-  share one upstream connection. A migration moves a device between connections
-  and reaps any connection left with no devices.
+- **The directory connection doubles as a data connection.** It carries the
+  `user/<id>/*` control channel (deciding which server each device is on) *and*
+  relays telemetry for any devices on the server it landed on. Additional
+  connections are opened only for other servers.
+- **Connections keyed by server, not device.** Devices on the same server share
+  one connection; a device is reused onto an existing connection when its server
+  matches one already held. A migration moves a device between connections and
+  reaps any non-directory connection left with no devices (the directory
+  connection is never closed — it's the control channel).
 - **Directional routing prevents loops.** Telemetry flows device → HA on
   `send/#`; commands flow HA → device on `recv`. The two directions never share a
   topic pattern, so nothing a relay publishes gets re-consumed and relayed again.
@@ -123,111 +147,25 @@ Design principles:
   Commands are published to devices with `retain=false` so a stale command can
   never replay.
 
-### Skeleton
+### Implementation
 
-`aiomqtt`-style pseudocode. `Upstream` is one connection per server; `Relay`
-multiplexes N servers onto the single Home Assistant broker.
+A complete, runnable implementation is in
+[prototype/relay.py](prototype/relay.py), verified end-to-end against the test
+server (discovery, telemetry, connection reuse, live migration, commands). Its
+shape:
 
-```python
-DIRECTORY = "myflameboss.com"        # test: "fb.oak.flameboss.com"
-USER_ID   = 42
-HA_BROKER = "core-mosquitto"
-HA_USER, HA_PASS   = "relay", "..."
-FB_USER, FB_TOKEN  = "T-42", "..."   # upstream creds (same as the apps)
-
-def send_filter(dev): return f"flameboss/{dev}/send/#"    # device → HA
-def recv_topic(dev):  return f"flameboss/{dev}/recv"      # HA → device
-
-
-class Upstream:
-    """One connection to one Flame Boss server; serves all this user's
-    devices that are currently on that server."""
-    def __init__(self, host, relay):
-        self.host, self.relay, self.devices, self.client = host, relay, set(), None
-
-    async def run(self):
-        while not self.relay.closing:
-            try:
-                async with aiomqtt.Client(self.host, 1883,
-                                          username=FB_USER, password=FB_TOKEN) as c:
-                    self.client = c
-                    for dev in list(self.devices):
-                        await c.subscribe(send_filter(dev))
-                    async for msg in c.messages:            # DEVICE → HA, retained
-                        await self.relay.ha.publish(msg.topic, msg.payload, retain=True)
-            except MqttError:
-                await asyncio.sleep(2)                      # auto-reconnect
-
-    async def add(self, dev):
-        self.devices.add(dev)
-        if self.client: await self.client.subscribe(send_filter(dev))
-
-    async def remove(self, dev):
-        self.devices.discard(dev)
-        if self.client: await self.client.unsubscribe(send_filter(dev))
-
-
-class Relay:
-    def __init__(self):
-        self.shards, self.device_shard, self.announced = {}, {}, set()
-        self.ha, self.closing = None, False
-
-    async def run(self):
-        async with aiomqtt.Client(HA_BROKER, 1883, username=HA_USER, password=HA_PASS) as ha:
-            self.ha = ha
-            await asyncio.gather(self.control_channel(), self.ha_command_pump(ha))
-
-    async def control_channel(self):
-        """Directory broker: discover devices + their servers, react to changes."""
-        while not self.closing:
-            try:
-                async with aiomqtt.Client(DIRECTORY, 1883,
-                                          username=FB_USER, password=FB_TOKEN) as entry:
-                    await entry.subscribe(f"user/{USER_ID}/recv")
-                    await entry.publish(f"user/{USER_ID}/send",
-                                        json.dumps({"name": "connected"}))   # prime
-                    async for msg in entry.messages:
-                        d = json.loads(msg.payload)
-                        if d.get("name") == "connected":
-                            await self.on_connected(d["device_id"], d["server"])
-            except MqttError:
-                await asyncio.sleep(2)                       # reconnect re-primes
-
-    async def on_connected(self, dev, server):
-        if dev not in self.announced:                        # publish discovery once
-            for s in SENSORS:
-                topic, payload = discovery(dev, s)
-                await self.ha.publish(topic, payload, retain=True)
-            await self.ha.subscribe(recv_topic(dev))
-            self.announced.add(dev)
-        await self.assign(dev, server)                       # route / migrate
-
-    async def assign(self, dev, server):
-        old = self.device_shard.get(dev)
-        if old == server:
-            return
-        if old and old in self.shards:
-            await self.shards[old].remove(dev)
-            await self.gc(old)
-        if server not in self.shards:
-            up = Upstream(server, self)
-            self.shards[server] = up
-            asyncio.create_task(up.run())
-        await self.shards[server].add(dev)
-        self.device_shard[dev] = server
-
-    async def gc(self, server):
-        up = self.shards.get(server)
-        if up and not up.devices:
-            up.client and await up.client.disconnect()
-            del self.shards[server]
-
-    async def ha_command_pump(self, ha):
-        async for msg in ha.messages:                        # HA → device
-            up = self.shards.get(self.device_shard.get(parse_device(msg.topic)))
-            if up and up.client:
-                await up.client.publish(msg.topic, msg.payload, retain=False)
-```
+- **`ServerConn`** — one connection to one Flame Boss server. The *entry*
+  connection is dialed to the directory host, announces the user, and carries
+  `user/<id>/recv`. Every `ServerConn` relays `flameboss/<dev>/send/#` for its
+  devices to the HA broker (retained).
+- **`Relay.handle_control`** — on a **device-less** `connected`, records the
+  server the entry connection is on, so devices there reuse it; on a **device**
+  `connected`, publishes discovery once and routes the device.
+- **`Relay.assign`** — reuses an existing connection when the device's server
+  matches one already held, else opens a new `ServerConn`; on migration, moves
+  the device and reaps the old connection (never the entry).
+- **`Relay.ha_command_pump`** — relays `flameboss/<dev>/recv` from Home
+  Assistant to the device's current server connection (never retained).
 
 ---
 
@@ -244,6 +182,12 @@ homeassistant/sensor/flameboss_<device_id>/<key>/config
 Each payload groups its entity under one Home Assistant **device** (via
 `device.identifiers`) so all of a controller's sensors appear together as
 "Flame Boss `<device_id>`".
+
+> **Entity IDs are prefixed with the device name.** Recent Home Assistant
+> derives the entity ID from the device name plus the entity name, so "Pit Temp"
+> on device "Flame Boss 120504" becomes `sensor.flame_boss_120504_pit_temp`
+> (not `sensor.pit_temp`). Use the actual IDs from Settings → Entities when
+> wiring dashboards or automations.
 
 ### Entity spec
 

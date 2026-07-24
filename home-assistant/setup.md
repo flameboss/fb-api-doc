@@ -139,8 +139,10 @@ cleansession true
 start_type automatic
 notifications false
 
-# Bring your controller's published data INTO Home Assistant:
-topic flameboss/123456/send/# in 0
+# Bring your controller's published data INTO Home Assistant. Subscribe to the
+# explicit subtopics, not a send/# wildcard (the server may ignore a wildcard):
+topic flameboss/123456/send/open in 0
+topic flameboss/123456/send/data in 0
 
 # OPTIONAL — allow Home Assistant to send commands to the controller:
 topic flameboss/123456/recv out 0
@@ -259,7 +261,11 @@ no offset). For example, Pit Temp becomes:
 ## See your data
 
 - **Entities:** Settings → Devices & Services → **Entities** → search "Pit".
-  Your `sensor.pit_temp`, `sensor.meat_probe_1`, etc. should appear.
+  Your Pit / probe / set-temp / fan sensors should appear. Note the entity IDs
+  differ by path: the **add-on (Option A)** prefixes them with the device name
+  (`sensor.flame_boss_120504_pit_temp`), while **manual sensors (Option B)** use
+  the name you gave (`sensor.pit_temp`). Use the exact IDs shown here when
+  building dashboards or automations.
 - **Live values:** Fire up the smoker (or make sure it's cooking) so it's
   publishing. Pit Temp will track your fire and Pit Set Temp will show your
   target.

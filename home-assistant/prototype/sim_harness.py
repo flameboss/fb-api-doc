@@ -36,7 +36,8 @@ log = logging.getLogger("sim")
 class Sim:
     def __init__(self, args: argparse.Namespace):
         self.args = args
-        self.server = args.servers[0]     # current "server" the device reports on
+        self.entry_server = args.servers[0]   # server the relay's directory conn lands on
+        self.server = args.servers[0]         # current server the device reports on
         self.tick = 0
 
     async def run(self) -> None:
@@ -58,8 +59,13 @@ class Sim:
                 except (ValueError, TypeError):
                     continue
                 if d.get("name") == "connected":
-                    log.info("relay announced — replying with device %s on %s",
-                             self.args.device_id, self.server)
+                    log.info("relay announced — entry server %s, device %s on %s",
+                             self.entry_server, self.args.device_id, self.server)
+                    # 1) device-less connected: the server this connection is on
+                    await self.client.publish(
+                        f"user/{self.args.user_id}/recv",
+                        json.dumps({"name": "connected", "server": self.entry_server}))
+                    # 2) one connected per device, naming that device's server
                     await self.announce_device()
             elif topic == f"flameboss/{self.args.device_id}/recv":
                 log.info("COMMAND received by device: %s", msg.payload.decode(errors="replace"))
