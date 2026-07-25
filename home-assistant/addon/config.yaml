@@ -2,7 +2,7 @@
 # Reference packaging — for distribution, move this addon/ into a dedicated
 # add-on repository (one with a top-level repository.yaml). See DOCS.md.
 name: Flame Boss
-version: "0.1.0"
+version: "0.1.1"
 slug: flameboss
 description: >-
   Relay Flame Boss controllers into Home Assistant over MQTT, with automatic
