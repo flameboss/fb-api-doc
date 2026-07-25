@@ -29,23 +29,18 @@ named **"Flame Boss `<device id>`"**.
 
 | Option | Meaning |
 | --- | --- |
-| `user_id` | Your Flame Boss numeric user id. |
-| `fb_user` | MQTT username (`T-…`) from the Developer page. |
+| `fb_cloud` | Flame Boss cloud host. `myflameboss.com` (default), or `fb.oak.flameboss.com` for the test server. The relay only connects to this host and its subdomains, so a spoofed message can't redirect it elsewhere. |
+| `fb_user_id` | Your Flame Boss numeric user id. The MQTT username (`T-<id>`) is derived from it. |
 | `fb_token` | MQTT password / API token from the Developer page. |
-| `env` | `prod` (`myflameboss.com`) or `test` (`fb.oak.flameboss.com`). |
 | `units` | `f` for °F or `c` for °C. |
-| `allow_servers` | Server-name suffixes the relay may connect to. Keep `flameboss.com` so a spoofed message can't redirect the relay elsewhere. |
 
 Example:
 
 ```yaml
-user_id: 42
-fb_user: "T-237883"
+fb_cloud: myflameboss.com
+fb_user_id: 42
 fb_token: "your-api-token"
-env: prod
 units: f
-allow_servers:
-  - flameboss.com
 ```
 
 ## Troubleshooting

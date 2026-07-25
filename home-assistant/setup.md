@@ -26,9 +26,9 @@ dashboard, chart, or use in automations.
 ## Option A — Flame Boss add-on (recommended)
 
 1. Settings → Add-ons → **Add-on Store**, and install the **Flame Boss** add-on.
-2. Open its **Configuration** tab and enter your Flame Boss **MQTT username**
-   (`T-…`) and **MQTT password** — get them from your Developer page
-   (Step 1 below explains where).
+2. Open its **Configuration** tab and enter your Flame Boss **user id**
+   (`fb_user_id`) and **MQTT token** (`fb_token`) — get them from your Developer
+   page (Step 1 below explains where). Leave `fb_cloud` at `myflameboss.com`.
 3. **Start** the add-on.
 
 That's it. Your controllers appear automatically under

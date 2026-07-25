@@ -27,8 +27,8 @@ relay only opens a new connection for a server it isn't connected to yet.
 This is a prototype: single user, in-memory state, minimal error handling.
 See ../ARCHITECTURE.md.
 
-    python relay.py --directory localhost --ha-host localhost \
-        --user-id 42 --fb-user test --fb-token test
+    python relay.py --fb-cloud localhost --ha-host localhost \
+        --fb-user-id 42 --fb-token test
 
 Dependencies: aiomqtt>=2.0  (pip install -r requirements.txt)
 """
@@ -53,11 +53,6 @@ def _short(payload, limit: int = 200) -> str:
     s = payload.decode(errors="replace") if isinstance(payload, (bytes, bytearray)) else str(payload)
     return s if len(s) <= limit else s[:limit - 3] + "..."
 
-
-DIRECTORY_BROKERS = {
-    "prod": "myflameboss.com",
-    "test": "fb.oak.flameboss.com",
-}
 
 EXPIRE_AFTER = 180  # seconds; entity → unavailable if the device stops publishing
 
@@ -169,7 +164,7 @@ class ServerConn:
         return f"[{self.fqdn}]"
 
     async def run(self) -> None:
-        uid = self.relay.args.user_id
+        uid = self.relay.args.fb_user_id
         while not self.relay.closing:
             try:
                 async with aiomqtt.Client(
@@ -242,7 +237,7 @@ class Relay:
         ) as ha:
             self.ha = ha
             log.info("connected to HA broker %s:%d", self.args.ha_host, self.args.ha_port)
-            self.entry = ServerConn(self, self.args.directory, is_entry=True)
+            self.entry = ServerConn(self, self.args.fb_cloud, is_entry=True)
             await asyncio.gather(self.entry.run(), self.ha_command_pump())
 
     # control plane: user/<id>/recv messages -----------------------------
@@ -279,9 +274,13 @@ class Relay:
         await self.assign(dev, server)
 
     def allowed_server(self, server: str) -> bool:
-        if not self.args.allow_servers:
+        # Anti-spoof: only connect to fb_cloud or a subdomain of it (device
+        # servers are subdomains, e.g. s1.fb.oak.flameboss.com). Skipped for a
+        # bare hostname or IP (local/dev, e.g. the simulator).
+        cloud = self.args.fb_cloud
+        if "." not in cloud or cloud.replace(".", "").isdigit():
             return True
-        return any(server == a or server.endswith("." + a) for a in self.args.allow_servers)
+        return server == cloud or server.endswith("." + cloud)
 
     # routing: reuse a connection we already hold for `server` -----------
     async def assign(self, dev: int, server: str) -> None:
@@ -335,30 +334,24 @@ class Relay:
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description="Flame Boss → Home Assistant relay (prototype)")
     env = os.environ.get
-    p.add_argument("--env", choices=["prod", "test"], default=env("FB_RELAY_ENV", "test"),
-                   help="selects the default directory broker (default: test)")
-    p.add_argument("--directory", default=env("FB_RELAY_DIRECTORY"),
-                   help="override directory broker host (e.g. localhost for the simulator)")
+    p.add_argument("--fb-cloud", default=env("FB_RELAY_FB_CLOUD", "myflameboss.com"),
+                   help="Flame Boss cloud host to announce on (default: myflameboss.com; "
+                        "test: fb.oak.flameboss.com; localhost for the simulator). Also "
+                        "bounds which servers the relay will connect to (it + subdomains).")
     p.add_argument("--port", type=int, default=int(env("FB_RELAY_PORT", "1883")))
-    p.add_argument("--user-id", type=int, default=int(env("FB_RELAY_USER_ID", "0")), required=not env("FB_RELAY_USER_ID"))
-    p.add_argument("--fb-user", default=env("FB_RELAY_FB_USER", ""))
+    p.add_argument("--fb-user-id", type=int, default=int(env("FB_RELAY_FB_USER_ID", "0")),
+                   required=not env("FB_RELAY_FB_USER_ID"),
+                   help="your Flame Boss numeric user id (MQTT username is T-<id>)")
     p.add_argument("--fb-token", default=env("FB_RELAY_FB_TOKEN", ""))
     p.add_argument("--ha-host", default=env("FB_RELAY_HA_HOST", "core-mosquitto"))
     p.add_argument("--ha-port", type=int, default=int(env("FB_RELAY_HA_PORT", "1883")))
     p.add_argument("--ha-user", default=env("FB_RELAY_HA_USER", ""))
     p.add_argument("--ha-pass", default=env("FB_RELAY_HA_PASS", ""))
     p.add_argument("--units", choices=["f", "c"], default=env("FB_RELAY_UNITS", "f"))
-    p.add_argument("--allow-servers", nargs="*", default=_split(env("FB_RELAY_ALLOW_SERVERS", "")),
-                   help="allowlist of server suffixes, e.g. flameboss.com (empty = allow any)")
     p.add_argument("-v", "--verbose", action="store_true")
     args = p.parse_args()
-    if not args.directory:
-        args.directory = DIRECTORY_BROKERS[args.env]
+    args.fb_user = f"T-{args.fb_user_id}"      # MQTT username is a function of the user id
     return args
-
-
-def _split(s: str) -> list[str]:
-    return [x for x in s.replace(",", " ").split() if x]
 
 
 async def main() -> None:

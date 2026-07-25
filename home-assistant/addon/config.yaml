@@ -24,22 +24,16 @@ services:
   - mqtt:need
 
 options:
-  user_id: 0
-  fb_user: ""
+  fb_cloud: myflameboss.com
+  fb_user_id: 0
   fb_token: ""
-  env: test
   units: f
-  allow_servers:
-    - flameboss.com
 
 schema:
-  user_id: int(1,)
-  fb_user: str
+  fb_cloud: str
+  fb_user_id: int(1,)
   fb_token: password
-  env: list(prod|test)
   units: list(f|c)
-  allow_servers:
-    - str
 
 # Prebuilt images published by the build workflow. The Supervisor pulls these
 # instead of building locally. {arch} is substituted per architecture.
