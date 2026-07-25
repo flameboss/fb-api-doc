@@ -13,29 +13,57 @@ dashboard, chart, or use in automations.
 | Setup | Install, enter your login, done | Edit config files by hand |
 | Entities | Created automatically | You write sensor YAML |
 | Multiple servers | Handled automatically | Points at one server only |
-| Availability | In your Add-on Store, if published for your account | Works on any Home Assistant today |
+| Works on | Home Assistant OS / Supervised (add-ons) | Any Home Assistant, incl. Container / Core |
 
-> **Which should I use?** If the **Flame Boss** add-on appears in your Home
-> Assistant Add-on Store, use it (Option A) — it auto-creates your entities and
-> keeps working even as Flame Boss adds servers. If it isn't available yet, the
-> manual bridge (Option B) works today on any Home Assistant. For how the add-on
-> works under the hood, see [ARCHITECTURE.md](ARCHITECTURE.md).
+> **Which should I use?** On **Home Assistant OS or Supervised**, use the add-on
+> (Option A) — it auto-creates your entities and keeps working even as Flame Boss
+> adds servers. Use the manual bridge (Option B) only if your install can't run
+> add-ons (Home Assistant Container / Core) or you prefer wiring it by hand. For
+> how the add-on works under the hood, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 
 ## Option A — Flame Boss add-on (recommended)
 
-1. Settings → Add-ons → **Add-on Store**, and install the **Flame Boss** add-on.
-2. Open its **Configuration** tab and enter your Flame Boss **user id**
-   (`fb_user_id`) and **MQTT token** (`fb_token`) — get them from your Developer
-   page (Step 1 below explains where). Leave `fb_cloud` at `myflameboss.com`.
-3. **Start** the add-on.
+**You'll need:** the **Mosquitto broker** add-on installed and running
+(Settings → Add-ons → Add-on Store → *Mosquitto broker*), and your Flame Boss
+controller online in the Flame Boss app.
 
-That's it. Your controllers appear automatically under
-**Settings → Devices & Services → MQTT** as a device named **"Flame Boss
-`<your device id>`"**, with pit, meat‑probe, set‑temp and fan sensors already
-created. Skip straight to [See your data](#see-your-data) — you can
-ignore the manual bridge and sensor YAML entirely.
+### 1. Add the Flame Boss add-on repository
+
+Click **[➕ Add to Home Assistant](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fflameboss%2Fhassio-addons)**,
+or add it manually: Settings → Add-ons → **Add-on Store → ⋮ → Repositories**,
+paste `https://github.com/flameboss/hassio-addons`, and click **Add**.
+
+### 2. Install
+
+In the Add-on Store, find **Flame Boss** (under the new repository) and click
+**Install**.
+
+### 3. Get your credentials
+
+Sign in at your Developer page — `https://myflameboss.com/en/users/dev`. Note
+your **MQTT username** (looks like `T-355596`; the number is your **user id**)
+and your **MQTT token**.
+
+### 4. Configure
+
+On the add-on's **Configuration** tab:
+
+```yaml
+fb_cloud: myflameboss.com
+fb_user_id: 355596        # your number from step 3
+fb_token: "your-token"    # your MQTT token from step 3
+units: f                  # or c
+```
+
+### 5. Start
+
+Click **Start**. Your controller appears under **Settings → Devices & Services →
+MQTT** as a device named **"Flame Boss `<your device id>`"**, with pit,
+meat‑probe, set‑temp and fan sensors already created. Skip straight to
+[See your data](#see-your-data) — you can ignore the manual bridge and sensor
+YAML entirely.
 
 The add-on connects the way the Flame Boss mobile apps do: it finds whichever
 server each of your controllers is currently on and follows it if it moves, so
