@@ -29,7 +29,7 @@ named **"Flame Boss `<device id>`"**.
 
 | Option | Meaning |
 | --- | --- |
-| `fb_cloud` | Flame Boss cloud host. `myflameboss.com` (default), or `fb.oak.flameboss.com` for the test server. The relay only connects to this host and its subdomains, so a spoofed message can't redirect it elsewhere. |
+| `fb_cloud` | Flame Boss cloud host. `myflameboss.com` (default). The relay only connects to this host and its subdomains, so a spoofed message can't redirect it elsewhere. |
 | `fb_user_id` | Your Flame Boss numeric user id. The MQTT username (`T-<id>`) is derived from it. |
 | `fb_token` | MQTT password / API token from the Developer page. |
 | `units` | `f` for °F or `c` for °C. |

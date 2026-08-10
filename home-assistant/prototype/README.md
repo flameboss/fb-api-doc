@@ -82,12 +82,12 @@ mosquitto_sub -h localhost -p 1883 -v -t 'homeassistant/#' -t 'flameboss/#'
 With a real controller online and MQTT credentials from your Developer page:
 
 ```bash
-python relay.py --fb-cloud fb.oak.flameboss.com --ha-host localhost \
+python relay.py --fb-cloud myflameboss.com --ha-host localhost \
     --fb-user-id <your_user_id> --fb-token <token> -v
 ```
 
 The relay only connects to `--fb-cloud` and its subdomains (device servers like
-`s1.fb.oak.flameboss.com`), so a spoofed `connected` message can't redirect it
+`s1.myflameboss.com`), so a spoofed `connected` message can't redirect it
 to an arbitrary host. The MQTT username is derived as `T-<fb_user_id>`. (For a
 bare hostname or IP like the simulator's `localhost`, that check is skipped.)
 

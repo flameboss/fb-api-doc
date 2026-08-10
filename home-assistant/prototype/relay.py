@@ -275,7 +275,7 @@ class Relay:
 
     def allowed_server(self, server: str) -> bool:
         # Anti-spoof: only connect to fb_cloud or a subdomain of it (device
-        # servers are subdomains, e.g. s1.fb.oak.flameboss.com). Skipped for a
+        # servers are subdomains, e.g. s1.myflameboss.com). Skipped for a
         # bare hostname or IP (local/dev, e.g. the simulator).
         cloud = self.args.fb_cloud
         if "." not in cloud or cloud.replace(".", "").isdigit():
@@ -336,7 +336,7 @@ def parse_args() -> argparse.Namespace:
     env = os.environ.get
     p.add_argument("--fb-cloud", default=env("FB_RELAY_FB_CLOUD", "myflameboss.com"),
                    help="Flame Boss cloud host to announce on (default: myflameboss.com; "
-                        "test: fb.oak.flameboss.com; localhost for the simulator). Also "
+                        "localhost for the simulator). Also "
                         "bounds which servers the relay will connect to (it + subdomains).")
     p.add_argument("--port", type=int, default=int(env("FB_RELAY_PORT", "1883")))
     p.add_argument("--fb-user-id", type=int, default=int(env("FB_RELAY_FB_USER_ID", "0")),

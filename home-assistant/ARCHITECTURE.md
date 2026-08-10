@@ -35,14 +35,11 @@ broker moves the bytes.
 
 ## The MQTT connection protocol
 
-### Brokers
+### Broker
 
-| Environment | Directory broker |
-| --- | --- |
-| Production | `myflameboss.com:1883` |
-| Test | `fb.oak.flameboss.com:1883` |
+myflameboss.com:1883
 
-The **directory broker** is an entry point that resolves to *any* Flame Boss
+This **directory broker** is an entry point that resolves to *any* Flame Boss
 server. A client connects there to discover where each of its devices lives.
 
 ### Discovering devices and their servers
@@ -60,7 +57,7 @@ Authenticate to the directory broker with the user's MQTT credentials (the
    landed on:
 
    ```json
-   { "name": "connected", "server": "s1.fb.oak.flameboss.com" }
+   { "name": "connected", "server": "s1.myflameboss.com" }
    ```
 
    The directory host is an entry point that resolves to one of the servers;
@@ -70,7 +67,7 @@ Authenticate to the directory broker with the user's MQTT credentials (the
    server:
 
    ```json
-   { "name": "connected", "device_id": 123456, "server": "s1.fb.oak.flameboss.com" }
+   { "name": "connected", "device_id": 123456, "server": "s1.myflameboss.com" }
    ```
 
    The `server` field is the FQDN of the specific server that device is
