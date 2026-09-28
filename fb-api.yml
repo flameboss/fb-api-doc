@@ -1533,14 +1533,19 @@ components:
             type: boolean
           range:
             type: integer
+          status:
+            type: string
+            enum: [inactive, active, alerting]
         required:
           - name
           - enabled
           - range
+          - status
         example:
           name: "pit_alarm"
           enabled: true
           range: 25
+          status: inactive
 
     pit_alarm_down:
       tags:
