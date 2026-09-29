@@ -194,6 +194,8 @@ channels:
         $ref: '#/components/messages/mqtt_up'
       ble_cx_up:
         $ref: '#/components/messages/ble_cx_up'
+      broker_up:
+        $ref: '#/components/messages/broker_up'
       synced_up:
         $ref: '#/components/messages/synced_up'
       dl_progress_up:
@@ -258,6 +260,8 @@ channels:
         $ref: '#/components/messages/state_down'
       mqtt_down:
         $ref: '#/components/messages/mqtt_down'
+      broker_down:
+        $ref: '#/components/messages/broker_down'
       reset_down:
         $ref: '#/components/messages/reset_down'
       log_level_down:
@@ -597,6 +601,22 @@ operations:
       $ref: '#/channels/flameboss~1{deviceId}~1recv'
     messages:
       - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/mqtt_down'
+    tags:
+      - name: Network
+  "broker uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/broker_up'
+    tags:
+      - name: Network
+  "broker downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/broker_down'
     tags:
       - name: Network
   "ip uplink":
@@ -1427,6 +1447,56 @@ components:
           - name
         example:
           name: "ble_cx"
+
+    broker_up:
+      tags:
+        - name: Network
+      summary: Cloud server the target last heard from
+      description: |
+        Diagnostic. The target sends this when it connects to the cloud and whenever it
+        receives a broker downlink. `id` is the number of the cloud server that last sent
+        the target a broker downlink since boot: id 2 means s2.myflameboss.com.
+        0 means no broker downlink has reached the target since boot, so the target has
+        not completed a round trip with the cloud. Query it over Bluetooth to learn which
+        server a target last reached when the cloud cannot reach it.
+        Supported on UltraQ.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [broker]
+          id:
+            type: integer
+            description: Cloud server number, or 0 if none since boot
+        required:
+          - name
+          - id
+        example:
+          name: "broker"
+          id: 2
+
+    broker_down:
+      tags:
+        - name: Network
+      summary: Get the cloud server the target last heard from
+      description: |
+        Send with only the name property to request a broker uplink.
+        The cloud server sends `id` in reply to a broker uplink whose id is not its own
+        server number; the target stores it and echoes it back. Apps should not send `id`.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [broker]
+          id:
+            type: integer
+            description: Cloud server number (sent by the cloud server only)
+        required:
+          - name
+        example:
+          name: "broker"
 
     meat_alarm_up:
       tags:
