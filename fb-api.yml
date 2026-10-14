@@ -148,6 +148,8 @@ channels:
         $ref: '#/components/messages/wifi_up'
       wifi_cx_up:
         $ref: '#/components/messages/wifi_cx_up'
+      wifi_module_up:
+        $ref: '#/components/messages/wifi_module_up'
       local_access_up:
         $ref: '#/components/messages/local_access_up'
       meat_alarm_up:
@@ -234,6 +236,8 @@ channels:
         $ref: '#/components/messages/wifi_down'
       wifi_scan_down:
         $ref: '#/components/messages/wifi_scan_down'
+      wifi_module_down:
+        $ref: '#/components/messages/wifi_module_down'
       local_access_down:
         $ref: '#/components/messages/local_access_down'
       ble_cx_down:
@@ -537,6 +541,22 @@ operations:
       $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
     messages:
       - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/wifi_cx_up'
+    tags:
+      - name: Network
+  "wifi_module uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/wifi_module_up'
+    tags:
+      - name: Network
+  "wifi_module downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/wifi_module_down'
     tags:
       - name: Network
   "wifi_scan uplink":
@@ -1273,6 +1293,30 @@ components:
           name: "wifi_cx"
           rssi: -55
           code: 0
+
+    wifi_module_up:
+      tags:
+        - name: Network
+      summary: WiFi module information
+      description: |
+        Reports the WiFi station MAC address. Sent as part of a sync and in reply to a
+        wifi_module downlink. Not all targets send this message. Some targets include
+        additional radio diagnostic properties.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [wifi_module]
+          sta_mac:
+            type: string
+            description: WiFi station MAC address as lowercase, colon-separated hex
+        required:
+          - name
+          - sta_mac
+        example:
+          name: "wifi_module"
+          sta_mac: "58:8c:81:3b:05:80"
 
     local_access_up:
       tags:
@@ -2270,6 +2314,21 @@ components:
           - name
         example:
           name: "wifi_scan"
+
+    wifi_module_down:
+      tags:
+        - name: Network
+      summary: Request WiFi module information
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [wifi_module]
+        required:
+          - name
+        example:
+          name: "wifi_module"
 
     timer_up:
       tags:
