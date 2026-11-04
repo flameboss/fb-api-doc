@@ -450,6 +450,43 @@
           "x-parser-unique-object-id": "wifi_cx_up",
           "x-parser-message-name": "wifi_cx_up"
         },
+        "wifi_module_up": {
+          "tags": [
+            {
+              "name": "Network"
+            }
+          ],
+          "summary": "WiFi module information",
+          "description": "Reports the WiFi station MAC address. Sent as part of a sync and in reply to a\nwifi_module downlink. Not all targets send this message. Some targets include\nadditional radio diagnostic properties.\n",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "wifi_module"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-45>"
+              },
+              "sta_mac": {
+                "type": "string",
+                "description": "WiFi station MAC address as lowercase, colon-separated hex",
+                "x-parser-schema-id": "<anonymous-schema-46>"
+              }
+            },
+            "required": [
+              "name",
+              "sta_mac"
+            ],
+            "example": {
+              "name": "wifi_module",
+              "sta_mac": "58:8c:81:3b:05:80"
+            },
+            "x-parser-schema-id": "<anonymous-schema-44>"
+          },
+          "x-parser-unique-object-id": "wifi_module_up",
+          "x-parser-message-name": "wifi_module_up"
+        },
         "local_access_up": {
           "tags": [
             {
@@ -466,7 +503,7 @@
                 "enum": [
                   "local_access"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-45>"
+                "x-parser-schema-id": "<anonymous-schema-48>"
               },
               "value": {
                 "type": "string",
@@ -476,7 +513,7 @@
                   "open"
                 ],
                 "description": "Local access mode:\n- `none`: No inbound LAN connections are allowed.\n- `authenticated`: Inbound LAN connections are allowed with MQTT authentication (username `fb`, password is the device PIN).\n- `open`: Retired. Unauthenticated inbound LAN connections are no longer supported.\n",
-                "x-parser-schema-id": "<anonymous-schema-46>"
+                "x-parser-schema-id": "<anonymous-schema-49>"
               }
             },
             "required": [
@@ -487,7 +524,7 @@
               "name": "local_access",
               "value": "authenticated"
             },
-            "x-parser-schema-id": "<anonymous-schema-44>"
+            "x-parser-schema-id": "<anonymous-schema-47>"
           },
           "x-parser-unique-object-id": "local_access_up",
           "x-parser-message-name": "local_access_up"
@@ -507,13 +544,13 @@
                 "enum": [
                   "meat_alarm"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-48>"
+                "x-parser-schema-id": "<anonymous-schema-51>"
               },
               "sensor": {
                 "type": "integer",
                 "minimum": 1,
                 "maximum": 3,
-                "x-parser-schema-id": "<anonymous-schema-49>"
+                "x-parser-schema-id": "<anonymous-schema-52>"
               },
               "action": {
                 "type": "string",
@@ -522,15 +559,15 @@
                   "on",
                   "keep_warm"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-50>"
+                "x-parser-schema-id": "<anonymous-schema-53>"
               },
               "done_temp": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-51>"
+                "x-parser-schema-id": "<anonymous-schema-54>"
               },
               "warm_temp": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-52>"
+                "x-parser-schema-id": "<anonymous-schema-55>"
               }
             },
             "required": [
@@ -547,7 +584,7 @@
               "done_temp": 203,
               "warm_temp": 170
             },
-            "x-parser-schema-id": "<anonymous-schema-47>"
+            "x-parser-schema-id": "<anonymous-schema-50>"
           },
           "x-parser-unique-object-id": "meat_alarm_up",
           "x-parser-message-name": "meat_alarm_up"
@@ -567,15 +604,15 @@
                 "enum": [
                   "set_temp_limits"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-54>"
+                "x-parser-schema-id": "<anonymous-schema-57>"
               },
               "min": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-55>"
+                "x-parser-schema-id": "<anonymous-schema-58>"
               },
               "max": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-56>"
+                "x-parser-schema-id": "<anonymous-schema-59>"
               }
             },
             "required": [
@@ -588,7 +625,7 @@
               "min": 150,
               "max": 500
             },
-            "x-parser-schema-id": "<anonymous-schema-53>"
+            "x-parser-schema-id": "<anonymous-schema-56>"
           },
           "x-parser-unique-object-id": "set_temp_limits_up",
           "x-parser-message-name": "set_temp_limits_up"
@@ -608,28 +645,39 @@
                 "enum": [
                   "pit_alarm"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-58>"
+                "x-parser-schema-id": "<anonymous-schema-61>"
               },
               "enabled": {
                 "type": "boolean",
-                "x-parser-schema-id": "<anonymous-schema-59>"
+                "x-parser-schema-id": "<anonymous-schema-62>"
               },
               "range": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-60>"
+                "x-parser-schema-id": "<anonymous-schema-63>"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "inactive",
+                  "active",
+                  "alerting"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-64>"
               }
             },
             "required": [
               "name",
               "enabled",
-              "range"
+              "range",
+              "status"
             ],
             "example": {
               "name": "pit_alarm",
               "enabled": true,
-              "range": 25
+              "range": 25,
+              "status": "inactive"
             },
-            "x-parser-schema-id": "<anonymous-schema-57>"
+            "x-parser-schema-id": "<anonymous-schema-60>"
           },
           "x-parser-unique-object-id": "pit_alarm_up",
           "x-parser-message-name": "pit_alarm_up"
@@ -649,17 +697,17 @@
                 "enum": [
                   "labels"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-62>"
+                "x-parser-schema-id": "<anonymous-schema-66>"
               },
               "values": {
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "x-parser-schema-id": "<anonymous-schema-64>"
+                  "x-parser-schema-id": "<anonymous-schema-68>"
                 },
                 "maxItems": 4,
                 "description": "Array of 4 strings, max 12 char each",
-                "x-parser-schema-id": "<anonymous-schema-63>"
+                "x-parser-schema-id": "<anonymous-schema-67>"
               }
             },
             "required": [
@@ -675,7 +723,7 @@
                 "Turkey"
               ]
             },
-            "x-parser-schema-id": "<anonymous-schema-61>"
+            "x-parser-schema-id": "<anonymous-schema-65>"
           },
           "x-parser-unique-object-id": "labels_up",
           "x-parser-message-name": "labels_up"
@@ -695,7 +743,7 @@
                 "enum": [
                   "sound"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-66>"
+                "x-parser-schema-id": "<anonymous-schema-70>"
               },
               "config": {
                 "type": "string",
@@ -704,7 +752,7 @@
                   "chirps",
                   "alarms"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-67>"
+                "x-parser-schema-id": "<anonymous-schema-71>"
               },
               "status": {
                 "type": "string",
@@ -712,7 +760,7 @@
                   "alarm",
                   "off"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-68>"
+                "x-parser-schema-id": "<anonymous-schema-72>"
               }
             },
             "required": [
@@ -725,7 +773,7 @@
               "config": "chirps",
               "status": "off"
             },
-            "x-parser-schema-id": "<anonymous-schema-65>"
+            "x-parser-schema-id": "<anonymous-schema-69>"
           },
           "x-parser-unique-object-id": "sound_up",
           "x-parser-message-name": "sound_up"
@@ -745,36 +793,36 @@
                 "enum": [
                   "pid"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-70>"
+                "x-parser-schema-id": "<anonymous-schema-74>"
               },
               "p": {
                 "type": "integer",
                 "description": "p * 100",
-                "x-parser-schema-id": "<anonymous-schema-71>"
+                "x-parser-schema-id": "<anonymous-schema-75>"
               },
               "i": {
                 "type": "integer",
                 "description": "i * 1000",
-                "x-parser-schema-id": "<anonymous-schema-72>"
+                "x-parser-schema-id": "<anonymous-schema-76>"
               },
               "d": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-73>"
+                "x-parser-schema-id": "<anonymous-schema-77>"
               },
               "ff": {
                 "type": "integer",
                 "description": "Learned duty cycle when no error from adaptive feed forward method",
-                "x-parser-schema-id": "<anonymous-schema-74>"
+                "x-parser-schema-id": "<anonymous-schema-78>"
               },
               "min_dc": {
                 "type": "integer",
                 "description": "Minimum duty cycle",
-                "x-parser-schema-id": "<anonymous-schema-75>"
+                "x-parser-schema-id": "<anonymous-schema-79>"
               },
               "pvl": {
                 "type": "integer",
                 "description": "Process value limit, caps output at this number * pit temp",
-                "x-parser-schema-id": "<anonymous-schema-76>"
+                "x-parser-schema-id": "<anonymous-schema-80>"
               }
             },
             "required": [
@@ -795,7 +843,7 @@
               "min_dc": 1500,
               "pvl": 2
             },
-            "x-parser-schema-id": "<anonymous-schema-69>"
+            "x-parser-schema-id": "<anonymous-schema-73>"
           },
           "x-parser-unique-object-id": "pid_up",
           "x-parser-message-name": "pid_up"
@@ -815,35 +863,35 @@
                 "enum": [
                   "gpid"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-78>"
+                "x-parser-schema-id": "<anonymous-schema-82>"
               },
               "ramp": {
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 4,
                 "description": "Ramp, 0 = disabled, 1-3 = ramp pit temp to maintain the food target temp on that probe",
-                "x-parser-schema-id": "<anonymous-schema-79>"
+                "x-parser-schema-id": "<anonymous-schema-83>"
               },
               "sc": {
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 4,
                 "description": "Smart cook setting",
-                "x-parser-schema-id": "<anonymous-schema-80>"
+                "x-parser-schema-id": "<anonymous-schema-84>"
               },
               "cyc": {
                 "type": "integer",
                 "minimum": 1,
                 "maximum": 10,
                 "description": "Cycle time in seconds when smart cook setting is 4",
-                "x-parser-schema-id": "<anonymous-schema-81>"
+                "x-parser-schema-id": "<anonymous-schema-85>"
               },
               "prop": {
                 "type": "integer",
                 "minimum": 10,
                 "maximum": 50,
                 "description": "Proportional band in degrees F when smart cook is 4",
-                "x-parser-schema-id": "<anonymous-schema-82>"
+                "x-parser-schema-id": "<anonymous-schema-86>"
               }
             },
             "required": [
@@ -860,7 +908,7 @@
               "cyc": 5,
               "prop": 25
             },
-            "x-parser-schema-id": "<anonymous-schema-77>"
+            "x-parser-schema-id": "<anonymous-schema-81>"
           },
           "x-parser-unique-object-id": "gpid_up",
           "x-parser-message-name": "gpid_up"
@@ -871,7 +919,8 @@
               "name": "Fan Control"
             }
           ],
-          "summary": "Open pit configuration",
+          "summary": "Open pit configuration and status",
+          "description": "Published when the controller detects the pit opened or closed, when the settings change, and on every connect. The server notifies users when open changes from the state it last stored, so repeats are harmless. Older Flame Boss firmware sends only max_pause, and reports the lid with the deprecated opened and closed uplinks instead of open.",
           "payload": {
             "type": "object",
             "properties": {
@@ -880,17 +929,32 @@
                 "enum": [
                   "open_pit"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-84>"
+                "x-parser-schema-id": "<anonymous-schema-88>"
               },
               "enabled": {
                 "type": "boolean",
                 "description": "Default is true if omitted",
-                "x-parser-schema-id": "<anonymous-schema-85>"
+                "x-parser-schema-id": "<anonymous-schema-89>"
+              },
+              "drop": {
+                "type": "integer",
+                "description": "Pit fall from its recent peak that signals open, in tenths of a degree C",
+                "x-parser-schema-id": "<anonymous-schema-90>"
+              },
+              "window": {
+                "type": "integer",
+                "description": "Seconds within which the pit must fall by drop",
+                "x-parser-schema-id": "<anonymous-schema-91>"
               },
               "max_pause": {
                 "type": "integer",
                 "description": "Max open pause time in seconds",
-                "x-parser-schema-id": "<anonymous-schema-86>"
+                "x-parser-schema-id": "<anonymous-schema-92>"
+              },
+              "open": {
+                "type": "boolean",
+                "description": "Whether the pit is open, with the fan paused",
+                "x-parser-schema-id": "<anonymous-schema-93>"
               }
             },
             "required": [
@@ -899,9 +963,13 @@
             ],
             "example": {
               "name": "open_pit",
-              "max_pause": 300
+              "enabled": true,
+              "drop": 30,
+              "window": 10,
+              "max_pause": 120,
+              "open": false
             },
-            "x-parser-schema-id": "<anonymous-schema-83>"
+            "x-parser-schema-id": "<anonymous-schema-87>"
           },
           "x-parser-unique-object-id": "open_pit_up",
           "x-parser-message-name": "open_pit_up"
@@ -921,27 +989,27 @@
                 "enum": [
                   "step"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-88>"
+                "x-parser-schema-id": "<anonymous-schema-95>"
               },
               "index": {
                 "type": "integer",
                 "description": "0-based step",
-                "x-parser-schema-id": "<anonymous-schema-89>"
+                "x-parser-schema-id": "<anonymous-schema-96>"
               },
               "active": {
                 "type": "boolean",
                 "description": "Currently on this step",
-                "x-parser-schema-id": "<anonymous-schema-90>"
+                "x-parser-schema-id": "<anonymous-schema-97>"
               },
               "step_name": {
                 "type": "string",
                 "description": "Name of step",
-                "x-parser-schema-id": "<anonymous-schema-91>"
+                "x-parser-schema-id": "<anonymous-schema-98>"
               },
               "set_temp": {
                 "type": "integer",
                 "description": "Set temp to hold during this step",
-                "x-parser-schema-id": "<anonymous-schema-92>"
+                "x-parser-schema-id": "<anonymous-schema-99>"
               },
               "end_by": {
                 "type": "string",
@@ -950,27 +1018,27 @@
                   "temp",
                   "none"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-93>"
+                "x-parser-schema-id": "<anonymous-schema-100>"
               },
               "time": {
                 "type": "integer",
                 "description": "Time this step lasts in seconds if end_by == time",
-                "x-parser-schema-id": "<anonymous-schema-94>"
+                "x-parser-schema-id": "<anonymous-schema-101>"
               },
               "temp": {
                 "type": "integer",
                 "description": "Target temp that causes to next step if end_by == temp",
-                "x-parser-schema-id": "<anonymous-schema-95>"
+                "x-parser-schema-id": "<anonymous-schema-102>"
               },
               "sensor": {
                 "type": "integer",
                 "description": "Sensor used for target temp if end_by = temp (default 1 aka meat 1)",
-                "x-parser-schema-id": "<anonymous-schema-96>"
+                "x-parser-schema-id": "<anonymous-schema-103>"
               },
               "started_at": {
                 "type": "integer",
                 "description": "Epoch this step started",
-                "x-parser-schema-id": "<anonymous-schema-97>"
+                "x-parser-schema-id": "<anonymous-schema-104>"
               }
             },
             "required": [
@@ -991,7 +1059,7 @@
               "time": 7200,
               "started_at": 1648224000
             },
-            "x-parser-schema-id": "<anonymous-schema-87>"
+            "x-parser-schema-id": "<anonymous-schema-94>"
           },
           "x-parser-unique-object-id": "step_up",
           "x-parser-message-name": "step_up"
@@ -1012,11 +1080,11 @@
                 "enum": [
                   "device_temp"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-99>"
+                "x-parser-schema-id": "<anonymous-schema-106>"
               },
               "value": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-100>"
+                "x-parser-schema-id": "<anonymous-schema-107>"
               }
             },
             "required": [
@@ -1027,7 +1095,7 @@
               "name": "device_temp",
               "value": 85
             },
-            "x-parser-schema-id": "<anonymous-schema-98>"
+            "x-parser-schema-id": "<anonymous-schema-105>"
           },
           "x-parser-unique-object-id": "device_temp_up",
           "x-parser-message-name": "device_temp_up"
@@ -1048,12 +1116,12 @@
                 "enum": [
                   "dc_input"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-102>"
+                "x-parser-schema-id": "<anonymous-schema-109>"
               },
               "value": {
                 "type": "integer",
                 "description": "Input voltage in decivolts",
-                "x-parser-schema-id": "<anonymous-schema-103>"
+                "x-parser-schema-id": "<anonymous-schema-110>"
               }
             },
             "required": [
@@ -1064,7 +1132,7 @@
               "name": "dc_input",
               "value": 120
             },
-            "x-parser-schema-id": "<anonymous-schema-101>"
+            "x-parser-schema-id": "<anonymous-schema-108>"
           },
           "x-parser-unique-object-id": "dc_input_up",
           "x-parser-message-name": "dc_input_up"
@@ -1085,13 +1153,13 @@
                 "enum": [
                   "meat_alarm_triggered"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-105>"
+                "x-parser-schema-id": "<anonymous-schema-112>"
               },
               "sensor": {
                 "type": "integer",
                 "minimum": 1,
                 "maximum": 3,
-                "x-parser-schema-id": "<anonymous-schema-106>"
+                "x-parser-schema-id": "<anonymous-schema-113>"
               }
             },
             "required": [
@@ -1102,7 +1170,7 @@
               "name": "meat_alarm_triggered",
               "sensor": 1
             },
-            "x-parser-schema-id": "<anonymous-schema-104>"
+            "x-parser-schema-id": "<anonymous-schema-111>"
           },
           "x-parser-unique-object-id": "meat_alarm_triggered_up",
           "x-parser-message-name": "meat_alarm_triggered_up"
@@ -1123,7 +1191,7 @@
                 "enum": [
                   "pit_alarm_active"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-108>"
+                "x-parser-schema-id": "<anonymous-schema-115>"
               }
             },
             "required": [
@@ -1132,7 +1200,7 @@
             "example": {
               "name": "pit_alarm_active"
             },
-            "x-parser-schema-id": "<anonymous-schema-107>"
+            "x-parser-schema-id": "<anonymous-schema-114>"
           },
           "x-parser-unique-object-id": "pit_alarm_active_up",
           "x-parser-message-name": "pit_alarm_active_up"
@@ -1153,7 +1221,7 @@
                 "enum": [
                   "pit_alarm_triggered"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-110>"
+                "x-parser-schema-id": "<anonymous-schema-117>"
               }
             },
             "required": [
@@ -1162,7 +1230,7 @@
             "example": {
               "name": "pit_alarm_triggered"
             },
-            "x-parser-schema-id": "<anonymous-schema-109>"
+            "x-parser-schema-id": "<anonymous-schema-116>"
           },
           "x-parser-unique-object-id": "pit_alarm_triggered_up",
           "x-parser-message-name": "pit_alarm_triggered_up"
@@ -1183,7 +1251,7 @@
                 "enum": [
                   "vent_advice"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-112>"
+                "x-parser-schema-id": "<anonymous-schema-119>"
               }
             },
             "required": [
@@ -1192,7 +1260,7 @@
             "example": {
               "name": "vent_advice"
             },
-            "x-parser-schema-id": "<anonymous-schema-111>"
+            "x-parser-schema-id": "<anonymous-schema-118>"
           },
           "x-parser-unique-object-id": "vent_advice_up",
           "x-parser-message-name": "vent_advice_up"
@@ -1213,7 +1281,7 @@
                 "enum": [
                   "opened"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-114>"
+                "x-parser-schema-id": "<anonymous-schema-121>"
               }
             },
             "required": [
@@ -1222,7 +1290,7 @@
             "example": {
               "name": "opened"
             },
-            "x-parser-schema-id": "<anonymous-schema-113>"
+            "x-parser-schema-id": "<anonymous-schema-120>"
           },
           "x-parser-unique-object-id": "opened_up",
           "x-parser-message-name": "opened_up"
@@ -1243,7 +1311,7 @@
                 "enum": [
                   "closed"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-116>"
+                "x-parser-schema-id": "<anonymous-schema-123>"
               }
             },
             "required": [
@@ -1252,7 +1320,7 @@
             "example": {
               "name": "closed"
             },
-            "x-parser-schema-id": "<anonymous-schema-115>"
+            "x-parser-schema-id": "<anonymous-schema-122>"
           },
           "x-parser-unique-object-id": "closed_up",
           "x-parser-message-name": "closed_up"
@@ -1272,11 +1340,11 @@
                 "enum": [
                   "probe_overtemp"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-118>"
+                "x-parser-schema-id": "<anonymous-schema-125>"
               },
               "sensor": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-119>"
+                "x-parser-schema-id": "<anonymous-schema-126>"
               }
             },
             "required": [
@@ -1287,7 +1355,7 @@
               "name": "probe_overtemp",
               "sensor": 1
             },
-            "x-parser-schema-id": "<anonymous-schema-117>"
+            "x-parser-schema-id": "<anonymous-schema-124>"
           },
           "x-parser-unique-object-id": "probe_overtemp_up",
           "x-parser-message-name": "probe_overtemp_up"
@@ -1307,7 +1375,7 @@
                 "enum": [
                   "device_overtemp"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-121>"
+                "x-parser-schema-id": "<anonymous-schema-128>"
               }
             },
             "required": [
@@ -1316,7 +1384,7 @@
             "example": {
               "name": "device_overtemp"
             },
-            "x-parser-schema-id": "<anonymous-schema-120>"
+            "x-parser-schema-id": "<anonymous-schema-127>"
           },
           "x-parser-unique-object-id": "device_overtemp_up",
           "x-parser-message-name": "device_overtemp_up"
@@ -1337,32 +1405,32 @@
                 "enum": [
                   "wifi_scan"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-123>"
+                "x-parser-schema-id": "<anonymous-schema-130>"
               },
               "index": {
                 "type": "integer",
                 "description": "the index from 0 to count - 1 of this message response to the wifi_scan downlink",
-                "x-parser-schema-id": "<anonymous-schema-124>"
+                "x-parser-schema-id": "<anonymous-schema-131>"
               },
               "count": {
                 "type": "integer",
                 "description": "how many wifi_scan messages are being sent in one response to the wifi_scan downlink",
-                "x-parser-schema-id": "<anonymous-schema-125>"
+                "x-parser-schema-id": "<anonymous-schema-132>"
               },
               "ssid": {
                 "type": "string",
                 "description": "the ssid of the access point",
-                "x-parser-schema-id": "<anonymous-schema-126>"
+                "x-parser-schema-id": "<anonymous-schema-133>"
               },
               "rssi": {
                 "type": "integer",
                 "description": "rssi x 10",
-                "x-parser-schema-id": "<anonymous-schema-127>"
+                "x-parser-schema-id": "<anonymous-schema-134>"
               },
               "bssid": {
                 "type": "string",
                 "description": "optional, bssid of AP",
-                "x-parser-schema-id": "<anonymous-schema-128>"
+                "x-parser-schema-id": "<anonymous-schema-135>"
               }
             },
             "required": [
@@ -1379,7 +1447,7 @@
               "ssid": "fb",
               "rssi": -550
             },
-            "x-parser-schema-id": "<anonymous-schema-122>"
+            "x-parser-schema-id": "<anonymous-schema-129>"
           },
           "x-parser-unique-object-id": "wifi_scan_up",
           "x-parser-message-name": "wifi_scan_up"
@@ -1399,42 +1467,42 @@
                 "enum": [
                   "mqtt"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-130>"
+                "x-parser-schema-id": "<anonymous-schema-137>"
               },
               "host": {
                 "type": "string",
                 "description": "MQTT broker hostname",
-                "x-parser-schema-id": "<anonymous-schema-131>"
+                "x-parser-schema-id": "<anonymous-schema-138>"
               },
               "ip": {
                 "type": "string",
                 "description": "MQTT broker IP address",
-                "x-parser-schema-id": "<anonymous-schema-132>"
+                "x-parser-schema-id": "<anonymous-schema-139>"
               },
               "port": {
                 "type": "integer",
                 "description": "MQTT broker port",
-                "x-parser-schema-id": "<anonymous-schema-133>"
+                "x-parser-schema-id": "<anonymous-schema-140>"
               },
               "tls": {
                 "type": "boolean",
                 "description": "TLS enabled",
-                "x-parser-schema-id": "<anonymous-schema-134>"
+                "x-parser-schema-id": "<anonymous-schema-141>"
               },
               "username": {
                 "type": "string",
                 "description": "MQTT username",
-                "x-parser-schema-id": "<anonymous-schema-135>"
+                "x-parser-schema-id": "<anonymous-schema-142>"
               },
               "local_en": {
                 "type": "boolean",
                 "description": "Local MQTT broker enabled",
-                "x-parser-schema-id": "<anonymous-schema-136>"
+                "x-parser-schema-id": "<anonymous-schema-143>"
               },
               "keepalive": {
                 "type": "integer",
                 "description": "MQTT keepalive interval in seconds",
-                "x-parser-schema-id": "<anonymous-schema-137>"
+                "x-parser-schema-id": "<anonymous-schema-144>"
               }
             },
             "required": [
@@ -1457,7 +1525,7 @@
               "local_en": true,
               "keepalive": 60
             },
-            "x-parser-schema-id": "<anonymous-schema-129>"
+            "x-parser-schema-id": "<anonymous-schema-136>"
           },
           "x-parser-unique-object-id": "mqtt_up",
           "x-parser-message-name": "mqtt_up"
@@ -1477,11 +1545,11 @@
                 "enum": [
                   "ble_cx"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-139>"
+                "x-parser-schema-id": "<anonymous-schema-146>"
               },
               "connected": {
                 "type": "boolean",
-                "x-parser-schema-id": "<anonymous-schema-140>"
+                "x-parser-schema-id": "<anonymous-schema-147>"
               }
             },
             "required": [
@@ -1492,10 +1560,47 @@
               "name": "ble_cx",
               "connected": true
             },
-            "x-parser-schema-id": "<anonymous-schema-138>"
+            "x-parser-schema-id": "<anonymous-schema-145>"
           },
           "x-parser-unique-object-id": "ble_cx_up",
           "x-parser-message-name": "ble_cx_up"
+        },
+        "broker_up": {
+          "tags": [
+            {
+              "name": "Network"
+            }
+          ],
+          "summary": "Cloud server the target last heard from",
+          "description": "Diagnostic. The target sends this when it connects to the cloud and whenever it\nreceives a broker downlink. `id` is the number of the cloud server that last sent\nthe target a broker downlink since boot: id 2 means s2.myflameboss.com.\n0 means no broker downlink has reached the target since boot, so the target has\nnot completed a round trip with the cloud. Query it over Bluetooth to learn which\nserver a target last reached when the cloud cannot reach it.\nSupported on UltraQ.\n",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "broker"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-149>"
+              },
+              "id": {
+                "type": "integer",
+                "description": "Cloud server number, or 0 if none since boot",
+                "x-parser-schema-id": "<anonymous-schema-150>"
+              }
+            },
+            "required": [
+              "name",
+              "id"
+            ],
+            "example": {
+              "name": "broker",
+              "id": 2
+            },
+            "x-parser-schema-id": "<anonymous-schema-148>"
+          },
+          "x-parser-unique-object-id": "broker_up",
+          "x-parser-message-name": "broker_up"
         },
         "synced_up": {
           "tags": [
@@ -1512,7 +1617,7 @@
                 "enum": [
                   "synced"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-142>"
+                "x-parser-schema-id": "<anonymous-schema-152>"
               }
             },
             "required": [
@@ -1521,7 +1626,7 @@
             "example": {
               "name": "synced"
             },
-            "x-parser-schema-id": "<anonymous-schema-141>"
+            "x-parser-schema-id": "<anonymous-schema-151>"
           },
           "x-parser-unique-object-id": "synced_up",
           "x-parser-message-name": "synced_up"
@@ -1541,24 +1646,24 @@
                 "enum": [
                   "dl_progress"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-144>"
+                "x-parser-schema-id": "<anonymous-schema-154>"
               },
               "target": {
                 "type": "string",
                 "enum": [
                   "app"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-145>"
+                "x-parser-schema-id": "<anonymous-schema-155>"
               },
               "version": {
                 "type": "string",
                 "description": "Version string of the firmware being downloaded (e.g. \"1.2.3\")",
-                "x-parser-schema-id": "<anonymous-schema-146>"
+                "x-parser-schema-id": "<anonymous-schema-156>"
               },
               "percent": {
                 "type": "integer",
                 "description": "Download progress as a percentage from 0 to 100",
-                "x-parser-schema-id": "<anonymous-schema-147>"
+                "x-parser-schema-id": "<anonymous-schema-157>"
               }
             },
             "required": [
@@ -1573,7 +1678,7 @@
               "version": "1.2.3",
               "percent": 42
             },
-            "x-parser-schema-id": "<anonymous-schema-143>"
+            "x-parser-schema-id": "<anonymous-schema-153>"
           },
           "x-parser-unique-object-id": "dl_progress_up",
           "x-parser-message-name": "dl_progress_up"
@@ -1594,7 +1699,7 @@
                 "enum": [
                   "timer"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-149>"
+                "x-parser-schema-id": "<anonymous-schema-159>"
               },
               "action": {
                 "type": "string",
@@ -1604,22 +1709,22 @@
                   "alarm"
                 ],
                 "description": "what to do when the timer expires. If hold, change the internal set temperature to the hold temperature.",
-                "x-parser-schema-id": "<anonymous-schema-150>"
+                "x-parser-schema-id": "<anonymous-schema-160>"
               },
               "value": {
                 "type": "integer",
                 "description": "start value of the timer in seconds",
-                "x-parser-schema-id": "<anonymous-schema-151>"
+                "x-parser-schema-id": "<anonymous-schema-161>"
               },
               "hold": {
                 "type": "integer",
                 "description": "the hold temperature",
-                "x-parser-schema-id": "<anonymous-schema-152>"
+                "x-parser-schema-id": "<anonymous-schema-162>"
               },
               "ends_at": {
                 "type": "integer",
                 "description": "if status is active, this is the timestamp when the timer will expire.",
-                "x-parser-schema-id": "<anonymous-schema-153>"
+                "x-parser-schema-id": "<anonymous-schema-163>"
               },
               "status": {
                 "type": "string",
@@ -1629,7 +1734,7 @@
                   "triggered"
                 ],
                 "description": "If status is triggered and action is hold, the controller has an effective set temperature equal to the hold temperature.\nIf status is triggered and action is alarm, the controller is alerting.\nNote: this property is redundant and can be computed from action and ends_at.\nHowever, it might be different than the computed value temporarily due to time differences\nbetween the target and its communicating peers.",
-                "x-parser-schema-id": "<anonymous-schema-154>"
+                "x-parser-schema-id": "<anonymous-schema-164>"
               }
             },
             "required": [
@@ -1646,7 +1751,7 @@
               "status": "active",
               "ends_at": 1747429645
             },
-            "x-parser-schema-id": "<anonymous-schema-148>"
+            "x-parser-schema-id": "<anonymous-schema-158>"
           },
           "x-parser-unique-object-id": "timer_up",
           "x-parser-message-name": "timer_up"
@@ -1666,7 +1771,7 @@
                 "enum": [
                   "state"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-156>"
+                "x-parser-schema-id": "<anonymous-schema-166>"
               },
               "value": {
                 "type": "string",
@@ -1676,7 +1781,7 @@
                   "error",
                   "production"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-157>"
+                "x-parser-schema-id": "<anonymous-schema-167>"
               }
             },
             "required": [
@@ -1687,7 +1792,7 @@
               "name": "state",
               "type": "run"
             },
-            "x-parser-schema-id": "<anonymous-schema-155>"
+            "x-parser-schema-id": "<anonymous-schema-165>"
           },
           "x-parser-unique-object-id": "state_up",
           "x-parser-message-name": "state_up"
@@ -1722,17 +1827,17 @@
                 "enum": [
                   "time"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-160>"
+                "x-parser-schema-id": "<anonymous-schema-170>"
               },
               "epoch": {
                 "type": "integer",
                 "description": "Time in Unix epoch scale",
-                "x-parser-schema-id": "<anonymous-schema-161>"
+                "x-parser-schema-id": "<anonymous-schema-171>"
               },
               "ms": {
                 "type": "integer",
                 "description": "Fraction of second in ms",
-                "x-parser-schema-id": "<anonymous-schema-162>"
+                "x-parser-schema-id": "<anonymous-schema-172>"
               }
             },
             "required": [
@@ -1743,7 +1848,7 @@
               "epoch": 1648224000,
               "ms": 500
             },
-            "x-parser-schema-id": "<anonymous-schema-159>"
+            "x-parser-schema-id": "<anonymous-schema-169>"
           },
           "x-parser-unique-object-id": "time_down",
           "x-parser-message-name": "time_down"
@@ -1763,16 +1868,16 @@
                 "enum": [
                   "dns"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-164>"
+                "x-parser-schema-id": "<anonymous-schema-174>"
               },
               "ips": {
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "x-parser-schema-id": "<anonymous-schema-166>"
+                  "x-parser-schema-id": "<anonymous-schema-176>"
                 },
                 "description": "Array of strings of IP addresses, up to 2.\nOmit to request current DNS configuration.",
-                "x-parser-schema-id": "<anonymous-schema-165>"
+                "x-parser-schema-id": "<anonymous-schema-175>"
               }
             },
             "required": [
@@ -1784,7 +1889,7 @@
                 "192.168.1.100"
               ]
             },
-            "x-parser-schema-id": "<anonymous-schema-163>"
+            "x-parser-schema-id": "<anonymous-schema-173>"
           },
           "x-parser-unique-object-id": "dns_down",
           "x-parser-message-name": "dns_down"
@@ -1804,7 +1909,7 @@
                 "enum": [
                   "ip"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-168>"
+                "x-parser-schema-id": "<anonymous-schema-178>"
               },
               "mode": {
                 "type": "string",
@@ -1812,22 +1917,22 @@
                   "manual",
                   "dhcp"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-169>"
+                "x-parser-schema-id": "<anonymous-schema-179>"
               },
               "ip": {
                 "type": "string",
                 "description": "IP address",
-                "x-parser-schema-id": "<anonymous-schema-170>"
+                "x-parser-schema-id": "<anonymous-schema-180>"
               },
               "netmask": {
                 "type": "string",
                 "description": "Netmask",
-                "x-parser-schema-id": "<anonymous-schema-171>"
+                "x-parser-schema-id": "<anonymous-schema-181>"
               },
               "gateway": {
                 "type": "string",
                 "description": "Gateway IP address",
-                "x-parser-schema-id": "<anonymous-schema-172>"
+                "x-parser-schema-id": "<anonymous-schema-182>"
               }
             },
             "required": [
@@ -1844,7 +1949,7 @@
               "netmask": "255.255.255.0",
               "gateway": "192.168.1.1"
             },
-            "x-parser-schema-id": "<anonymous-schema-167>"
+            "x-parser-schema-id": "<anonymous-schema-177>"
           },
           "x-parser-unique-object-id": "ip_down",
           "x-parser-message-name": "ip_down"
@@ -1864,7 +1969,7 @@
                 "enum": [
                   "id"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-174>"
+                "x-parser-schema-id": "<anonymous-schema-184>"
               }
             },
             "required": [
@@ -1873,7 +1978,7 @@
             "example": {
               "name": "id"
             },
-            "x-parser-schema-id": "<anonymous-schema-173>"
+            "x-parser-schema-id": "<anonymous-schema-183>"
           },
           "x-parser-unique-object-id": "id_down",
           "x-parser-message-name": "id_down"
@@ -1893,12 +1998,12 @@
                 "enum": [
                   "set_temp"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-176>"
+                "x-parser-schema-id": "<anonymous-schema-186>"
               },
               "value": {
                 "type": "integer",
                 "description": "Omit to request current set temperature",
-                "x-parser-schema-id": "<anonymous-schema-177>"
+                "x-parser-schema-id": "<anonymous-schema-187>"
               }
             },
             "required": [
@@ -1908,7 +2013,7 @@
               "name": "set_temp",
               "value": 250
             },
-            "x-parser-schema-id": "<anonymous-schema-175>"
+            "x-parser-schema-id": "<anonymous-schema-185>"
           },
           "x-parser-unique-object-id": "set_temp_down",
           "x-parser-message-name": "set_temp_down"
@@ -1928,7 +2033,7 @@
                 "enum": [
                   "wifi"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-179>"
+                "x-parser-schema-id": "<anonymous-schema-189>"
               },
               "index": {
                 "type": "integer",
@@ -1937,15 +2042,15 @@
                   1
                 ],
                 "description": "Omitting index is equivalent to index = 0",
-                "x-parser-schema-id": "<anonymous-schema-180>"
+                "x-parser-schema-id": "<anonymous-schema-190>"
               },
               "ssid": {
                 "type": "string",
-                "x-parser-schema-id": "<anonymous-schema-181>"
+                "x-parser-schema-id": "<anonymous-schema-191>"
               },
               "key": {
                 "type": "string",
-                "x-parser-schema-id": "<anonymous-schema-182>"
+                "x-parser-schema-id": "<anonymous-schema-192>"
               }
             },
             "required": [
@@ -1958,7 +2063,7 @@
               "ssid": "MyWifiNetwork",
               "key": "wifi-password"
             },
-            "x-parser-schema-id": "<anonymous-schema-178>"
+            "x-parser-schema-id": "<anonymous-schema-188>"
           },
           "x-parser-unique-object-id": "wifi_down",
           "x-parser-message-name": "wifi_down"
@@ -1978,7 +2083,7 @@
                 "enum": [
                   "wifi_scan"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-184>"
+                "x-parser-schema-id": "<anonymous-schema-194>"
               }
             },
             "required": [
@@ -1987,10 +2092,39 @@
             "example": {
               "name": "wifi_scan"
             },
-            "x-parser-schema-id": "<anonymous-schema-183>"
+            "x-parser-schema-id": "<anonymous-schema-193>"
           },
           "x-parser-unique-object-id": "wifi_scan_down",
           "x-parser-message-name": "wifi_scan_down"
+        },
+        "wifi_module_down": {
+          "tags": [
+            {
+              "name": "Network"
+            }
+          ],
+          "summary": "Request WiFi module information",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "wifi_module"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-196>"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "example": {
+              "name": "wifi_module"
+            },
+            "x-parser-schema-id": "<anonymous-schema-195>"
+          },
+          "x-parser-unique-object-id": "wifi_module_down",
+          "x-parser-message-name": "wifi_module_down"
         },
         "local_access_down": {
           "tags": [
@@ -2008,7 +2142,7 @@
                 "enum": [
                   "local_access"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-186>"
+                "x-parser-schema-id": "<anonymous-schema-198>"
               },
               "value": {
                 "type": "string",
@@ -2017,7 +2151,7 @@
                   "authenticated"
                 ],
                 "description": "Local access mode:\n- `none`: Disallow inbound LAN connections.\n- `authenticated`: Allow inbound LAN connections with MQTT authentication (username `fb`, password is the device PIN).\n",
-                "x-parser-schema-id": "<anonymous-schema-187>"
+                "x-parser-schema-id": "<anonymous-schema-199>"
               }
             },
             "required": [
@@ -2027,7 +2161,7 @@
               "name": "local_access",
               "value": "authenticated"
             },
-            "x-parser-schema-id": "<anonymous-schema-185>"
+            "x-parser-schema-id": "<anonymous-schema-197>"
           },
           "x-parser-unique-object-id": "local_access_down",
           "x-parser-message-name": "local_access_down"
@@ -2047,7 +2181,7 @@
                 "enum": [
                   "ble_cx"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-189>"
+                "x-parser-schema-id": "<anonymous-schema-201>"
               }
             },
             "required": [
@@ -2056,7 +2190,7 @@
             "example": {
               "name": "ble_cx"
             },
-            "x-parser-schema-id": "<anonymous-schema-188>"
+            "x-parser-schema-id": "<anonymous-schema-200>"
           },
           "x-parser-unique-object-id": "ble_cx_down",
           "x-parser-message-name": "ble_cx_down"
@@ -2076,13 +2210,13 @@
                 "enum": [
                   "meat_alarm"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-191>"
+                "x-parser-schema-id": "<anonymous-schema-203>"
               },
               "sensor": {
                 "type": "integer",
                 "minimum": 1,
                 "maximum": 3,
-                "x-parser-schema-id": "<anonymous-schema-192>"
+                "x-parser-schema-id": "<anonymous-schema-204>"
               },
               "action": {
                 "type": "string",
@@ -2091,15 +2225,15 @@
                   "on",
                   "keep_warm"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-193>"
+                "x-parser-schema-id": "<anonymous-schema-205>"
               },
               "done_temp": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-194>"
+                "x-parser-schema-id": "<anonymous-schema-206>"
               },
               "warm_temp": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-195>"
+                "x-parser-schema-id": "<anonymous-schema-207>"
               }
             },
             "required": [
@@ -2116,7 +2250,7 @@
               "done_temp": 203,
               "warm_temp": 170
             },
-            "x-parser-schema-id": "<anonymous-schema-190>"
+            "x-parser-schema-id": "<anonymous-schema-202>"
           },
           "x-parser-unique-object-id": "meat_alarm_down",
           "x-parser-message-name": "meat_alarm_down"
@@ -2136,15 +2270,15 @@
                 "enum": [
                   "pit_alarm"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-197>"
+                "x-parser-schema-id": "<anonymous-schema-209>"
               },
               "enabled": {
                 "type": "boolean",
-                "x-parser-schema-id": "<anonymous-schema-198>"
+                "x-parser-schema-id": "<anonymous-schema-210>"
               },
               "range": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-199>"
+                "x-parser-schema-id": "<anonymous-schema-211>"
               }
             },
             "required": [
@@ -2157,7 +2291,7 @@
               "enabled": true,
               "range": 25
             },
-            "x-parser-schema-id": "<anonymous-schema-196>"
+            "x-parser-schema-id": "<anonymous-schema-208>"
           },
           "x-parser-unique-object-id": "pit_alarm_down",
           "x-parser-message-name": "pit_alarm_down"
@@ -2177,17 +2311,17 @@
                 "enum": [
                   "labels"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-201>"
+                "x-parser-schema-id": "<anonymous-schema-213>"
               },
               "values": {
                 "type": "array",
                 "items": {
                   "type": "string",
-                  "x-parser-schema-id": "<anonymous-schema-203>"
+                  "x-parser-schema-id": "<anonymous-schema-215>"
                 },
                 "maxItems": 4,
                 "description": "Array of 4 strings, max 12 char each",
-                "x-parser-schema-id": "<anonymous-schema-202>"
+                "x-parser-schema-id": "<anonymous-schema-214>"
               }
             },
             "required": [
@@ -2203,7 +2337,7 @@
                 "Turkey"
               ]
             },
-            "x-parser-schema-id": "<anonymous-schema-200>"
+            "x-parser-schema-id": "<anonymous-schema-212>"
           },
           "x-parser-unique-object-id": "labels_down",
           "x-parser-message-name": "labels_down"
@@ -2223,7 +2357,7 @@
                 "enum": [
                   "sound"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-205>"
+                "x-parser-schema-id": "<anonymous-schema-217>"
               },
               "config": {
                 "type": "string",
@@ -2232,7 +2366,7 @@
                   "chirps",
                   "alarms"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-206>"
+                "x-parser-schema-id": "<anonymous-schema-218>"
               }
             },
             "required": [
@@ -2243,7 +2377,7 @@
               "name": "sound",
               "config": "chirps"
             },
-            "x-parser-schema-id": "<anonymous-schema-204>"
+            "x-parser-schema-id": "<anonymous-schema-216>"
           },
           "x-parser-unique-object-id": "sound_down",
           "x-parser-message-name": "sound_down"
@@ -2263,36 +2397,36 @@
                 "enum": [
                   "pid"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-208>"
+                "x-parser-schema-id": "<anonymous-schema-220>"
               },
               "p": {
                 "type": "integer",
                 "description": "p * 100",
-                "x-parser-schema-id": "<anonymous-schema-209>"
+                "x-parser-schema-id": "<anonymous-schema-221>"
               },
               "i": {
                 "type": "integer",
                 "description": "i * 1000",
-                "x-parser-schema-id": "<anonymous-schema-210>"
+                "x-parser-schema-id": "<anonymous-schema-222>"
               },
               "d": {
                 "type": "integer",
-                "x-parser-schema-id": "<anonymous-schema-211>"
+                "x-parser-schema-id": "<anonymous-schema-223>"
               },
               "ff": {
                 "type": "integer",
                 "description": "Learned duty cycle when no error from adaptive feed forward method",
-                "x-parser-schema-id": "<anonymous-schema-212>"
+                "x-parser-schema-id": "<anonymous-schema-224>"
               },
               "min_dc": {
                 "type": "integer",
                 "description": "Minimum duty cycle",
-                "x-parser-schema-id": "<anonymous-schema-213>"
+                "x-parser-schema-id": "<anonymous-schema-225>"
               },
               "pvl": {
                 "type": "integer",
                 "description": "Process value limit, caps output at this number * pit temp",
-                "x-parser-schema-id": "<anonymous-schema-214>"
+                "x-parser-schema-id": "<anonymous-schema-226>"
               }
             },
             "required": [
@@ -2313,7 +2447,7 @@
               "min_dc": 1500,
               "pvl": 2
             },
-            "x-parser-schema-id": "<anonymous-schema-207>"
+            "x-parser-schema-id": "<anonymous-schema-219>"
           },
           "x-parser-unique-object-id": "pid_down",
           "x-parser-message-name": "pid_down"
@@ -2333,28 +2467,28 @@
                 "enum": [
                   "gpid"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-216>"
+                "x-parser-schema-id": "<anonymous-schema-228>"
               },
               "sc": {
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 4,
                 "description": "Smart cook setting",
-                "x-parser-schema-id": "<anonymous-schema-217>"
+                "x-parser-schema-id": "<anonymous-schema-229>"
               },
               "cyc": {
                 "type": "integer",
                 "minimum": 1,
                 "maximum": 10,
                 "description": "Cycle time in seconds when smart cook setting is 4",
-                "x-parser-schema-id": "<anonymous-schema-218>"
+                "x-parser-schema-id": "<anonymous-schema-230>"
               },
               "prop": {
                 "type": "integer",
                 "minimum": 10,
                 "maximum": 50,
                 "description": "Proportional band in degrees F when smart cook is 4",
-                "x-parser-schema-id": "<anonymous-schema-219>"
+                "x-parser-schema-id": "<anonymous-schema-231>"
               }
             },
             "required": [
@@ -2369,7 +2503,7 @@
               "cyc": 5,
               "prop": 25
             },
-            "x-parser-schema-id": "<anonymous-schema-215>"
+            "x-parser-schema-id": "<anonymous-schema-227>"
           },
           "x-parser-unique-object-id": "gpid_down",
           "x-parser-message-name": "gpid_down"
@@ -2389,12 +2523,12 @@
                 "enum": [
                   "open_pit"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-221>"
+                "x-parser-schema-id": "<anonymous-schema-233>"
               },
               "max_pause": {
                 "type": "integer",
                 "description": "Max open pause time in seconds",
-                "x-parser-schema-id": "<anonymous-schema-222>"
+                "x-parser-schema-id": "<anonymous-schema-234>"
               }
             },
             "required": [
@@ -2405,7 +2539,7 @@
               "name": "open_pit",
               "max_pause": 300
             },
-            "x-parser-schema-id": "<anonymous-schema-220>"
+            "x-parser-schema-id": "<anonymous-schema-232>"
           },
           "x-parser-unique-object-id": "open_pit_down",
           "x-parser-message-name": "open_pit_down"
@@ -2425,22 +2559,22 @@
                 "enum": [
                   "step"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-224>"
+                "x-parser-schema-id": "<anonymous-schema-236>"
               },
               "index": {
                 "type": "integer",
                 "description": "0-based step",
-                "x-parser-schema-id": "<anonymous-schema-225>"
+                "x-parser-schema-id": "<anonymous-schema-237>"
               },
               "step_name": {
                 "type": "string",
                 "description": "Name of step",
-                "x-parser-schema-id": "<anonymous-schema-226>"
+                "x-parser-schema-id": "<anonymous-schema-238>"
               },
               "set_temp": {
                 "type": "integer",
                 "description": "Set temp to hold during this step",
-                "x-parser-schema-id": "<anonymous-schema-227>"
+                "x-parser-schema-id": "<anonymous-schema-239>"
               },
               "end_by": {
                 "type": "string",
@@ -2449,22 +2583,22 @@
                   "temp",
                   "none"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-228>"
+                "x-parser-schema-id": "<anonymous-schema-240>"
               },
               "time": {
                 "type": "integer",
                 "description": "Time this step lasts in seconds",
-                "x-parser-schema-id": "<anonymous-schema-229>"
+                "x-parser-schema-id": "<anonymous-schema-241>"
               },
               "temp": {
                 "type": "integer",
                 "description": "Target temp that causes to next step if end_by == temp",
-                "x-parser-schema-id": "<anonymous-schema-230>"
+                "x-parser-schema-id": "<anonymous-schema-242>"
               },
               "sensor": {
                 "type": "integer",
                 "description": "Sensor used for target temp if end_by = temp",
-                "x-parser-schema-id": "<anonymous-schema-231>"
+                "x-parser-schema-id": "<anonymous-schema-243>"
               }
             },
             "required": [
@@ -2482,7 +2616,7 @@
               "end_by": "time",
               "time": 7200
             },
-            "x-parser-schema-id": "<anonymous-schema-223>"
+            "x-parser-schema-id": "<anonymous-schema-235>"
           },
           "x-parser-unique-object-id": "step_down",
           "x-parser-message-name": "step_down"
@@ -2502,7 +2636,7 @@
                 "enum": [
                   "timer"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-233>"
+                "x-parser-schema-id": "<anonymous-schema-245>"
               },
               "action": {
                 "type": "string",
@@ -2512,17 +2646,17 @@
                   "alarm"
                 ],
                 "description": "what to do when the timer expires. If hold, change the internal set temperature to the hold temperature.",
-                "x-parser-schema-id": "<anonymous-schema-234>"
+                "x-parser-schema-id": "<anonymous-schema-246>"
               },
               "value": {
                 "type": "integer",
                 "description": "start value of the timer in seconds",
-                "x-parser-schema-id": "<anonymous-schema-235>"
+                "x-parser-schema-id": "<anonymous-schema-247>"
               },
               "hold": {
                 "type": "integer",
                 "description": "the hold temperature",
-                "x-parser-schema-id": "<anonymous-schema-236>"
+                "x-parser-schema-id": "<anonymous-schema-248>"
               }
             },
             "required": [
@@ -2534,7 +2668,7 @@
               "value": 14400,
               "hold": 656
             },
-            "x-parser-schema-id": "<anonymous-schema-232>"
+            "x-parser-schema-id": "<anonymous-schema-244>"
           },
           "x-parser-unique-object-id": "timer_down",
           "x-parser-message-name": "timer_down"
@@ -2554,14 +2688,14 @@
                 "enum": [
                   "state"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-238>"
+                "x-parser-schema-id": "<anonymous-schema-250>"
               },
               "value": {
                 "type": "string",
                 "enum": [
                   "idle"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-239>"
+                "x-parser-schema-id": "<anonymous-schema-251>"
               }
             },
             "required": [
@@ -2572,7 +2706,7 @@
               "name": "state",
               "value": "idle"
             },
-            "x-parser-schema-id": "<anonymous-schema-237>"
+            "x-parser-schema-id": "<anonymous-schema-249>"
           },
           "x-parser-unique-object-id": "state_down",
           "x-parser-message-name": "state_down"
@@ -2592,32 +2726,32 @@
                 "enum": [
                   "mqtt"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-241>"
+                "x-parser-schema-id": "<anonymous-schema-253>"
               },
               "host": {
                 "type": "string",
                 "description": "MQTT broker hostname",
-                "x-parser-schema-id": "<anonymous-schema-242>"
+                "x-parser-schema-id": "<anonymous-schema-254>"
               },
               "ip": {
                 "type": "string",
                 "description": "MQTT broker IP address",
-                "x-parser-schema-id": "<anonymous-schema-243>"
+                "x-parser-schema-id": "<anonymous-schema-255>"
               },
               "tls": {
                 "type": "boolean",
                 "description": "TLS enabled",
-                "x-parser-schema-id": "<anonymous-schema-244>"
+                "x-parser-schema-id": "<anonymous-schema-256>"
               },
               "keepalive": {
                 "type": "integer",
                 "description": "MQTT keepalive interval in seconds, minimum 10, 0 to disable",
-                "x-parser-schema-id": "<anonymous-schema-245>"
+                "x-parser-schema-id": "<anonymous-schema-257>"
               },
               "timeout": {
                 "type": "integer",
                 "description": "MQTT timeout in seconds, minimum 5, must be less than keepalive",
-                "x-parser-schema-id": "<anonymous-schema-246>"
+                "x-parser-schema-id": "<anonymous-schema-258>"
               }
             },
             "required": [
@@ -2629,10 +2763,45 @@
               "keepalive": 60,
               "timeout": 10
             },
-            "x-parser-schema-id": "<anonymous-schema-240>"
+            "x-parser-schema-id": "<anonymous-schema-252>"
           },
           "x-parser-unique-object-id": "mqtt_down",
           "x-parser-message-name": "mqtt_down"
+        },
+        "broker_down": {
+          "tags": [
+            {
+              "name": "Network"
+            }
+          ],
+          "summary": "Get the cloud server the target last heard from",
+          "description": "Send with only the name property to request a broker uplink.\nThe cloud server sends `id` in reply to a broker uplink whose id is not its own\nserver number; the target stores it and echoes it back. Apps should not send `id`.\n",
+          "payload": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "enum": [
+                  "broker"
+                ],
+                "x-parser-schema-id": "<anonymous-schema-260>"
+              },
+              "id": {
+                "type": "integer",
+                "description": "Cloud server number (sent by the cloud server only)",
+                "x-parser-schema-id": "<anonymous-schema-261>"
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "example": {
+              "name": "broker"
+            },
+            "x-parser-schema-id": "<anonymous-schema-259>"
+          },
+          "x-parser-unique-object-id": "broker_down",
+          "x-parser-message-name": "broker_down"
         },
         "reset_down": {
           "tags": [
@@ -2649,7 +2818,7 @@
                 "enum": [
                   "reset"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-248>"
+                "x-parser-schema-id": "<anonymous-schema-263>"
               },
               "type": {
                 "type": "string",
@@ -2658,7 +2827,7 @@
                   "wifi",
                   "device"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-249>"
+                "x-parser-schema-id": "<anonymous-schema-264>"
               }
             },
             "required": [
@@ -2669,7 +2838,7 @@
               "name": "reset",
               "type": "device"
             },
-            "x-parser-schema-id": "<anonymous-schema-247>"
+            "x-parser-schema-id": "<anonymous-schema-262>"
           },
           "x-parser-unique-object-id": "reset_down",
           "x-parser-message-name": "reset_down"
@@ -2689,7 +2858,7 @@
                 "enum": [
                   "log_level"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-251>"
+                "x-parser-schema-id": "<anonymous-schema-266>"
               },
               "value": {
                 "type": "string",
@@ -2697,7 +2866,7 @@
                   "info",
                   "warn"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-252>"
+                "x-parser-schema-id": "<anonymous-schema-267>"
               }
             },
             "required": [
@@ -2708,7 +2877,7 @@
               "name": "log_level",
               "value": "info"
             },
-            "x-parser-schema-id": "<anonymous-schema-250>"
+            "x-parser-schema-id": "<anonymous-schema-265>"
           },
           "x-parser-unique-object-id": "log_level_down",
           "x-parser-message-name": "log_level_down"
@@ -2728,7 +2897,7 @@
                 "enum": [
                   "dl_start"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-254>"
+                "x-parser-schema-id": "<anonymous-schema-269>"
               },
               "target": {
                 "type": "string",
@@ -2736,22 +2905,22 @@
                   "app"
                 ],
                 "description": "Must be \"app\". Other values are ignored.",
-                "x-parser-schema-id": "<anonymous-schema-255>"
+                "x-parser-schema-id": "<anonymous-schema-270>"
               },
               "version": {
                 "type": "string",
                 "description": "Firmware version string (e.g. \"1.2.3\"). Must be strictly newer than the version currently running on the device, otherwise the downlink is ignored.",
-                "x-parser-schema-id": "<anonymous-schema-256>"
+                "x-parser-schema-id": "<anonymous-schema-271>"
               },
               "path": {
                 "type": "string",
                 "description": "Path component appended to the broker's fw-dl base URL to form the download URL. The device fetches firmware from `http(s)://<broker>/fw-dl/<path>`.",
-                "x-parser-schema-id": "<anonymous-schema-257>"
+                "x-parser-schema-id": "<anonymous-schema-272>"
               },
               "length": {
                 "type": "integer",
                 "description": "Expected byte length of the firmware image. Optional but recommended.",
-                "x-parser-schema-id": "<anonymous-schema-258>"
+                "x-parser-schema-id": "<anonymous-schema-273>"
               }
             },
             "required": [
@@ -2767,7 +2936,7 @@
               "path": "fb500-1.2.3.bin",
               "length": 524288
             },
-            "x-parser-schema-id": "<anonymous-schema-253>"
+            "x-parser-schema-id": "<anonymous-schema-268>"
           },
           "x-parser-unique-object-id": "dl_start_down",
           "x-parser-message-name": "dl_start_down"
@@ -2787,7 +2956,7 @@
                 "enum": [
                   "alarm_ack"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-260>"
+                "x-parser-schema-id": "<anonymous-schema-275>"
               }
             },
             "required": [
@@ -2796,7 +2965,7 @@
             "example": {
               "name": "alarm_ack"
             },
-            "x-parser-schema-id": "<anonymous-schema-259>"
+            "x-parser-schema-id": "<anonymous-schema-274>"
           },
           "x-parser-unique-object-id": "alarm_ack_down",
           "x-parser-message-name": "alarm_ack_down"
@@ -2816,7 +2985,7 @@
                 "enum": [
                   "sync"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-262>"
+                "x-parser-schema-id": "<anonymous-schema-277>"
               }
             },
             "required": [
@@ -2825,7 +2994,7 @@
             "example": {
               "name": "sync"
             },
-            "x-parser-schema-id": "<anonymous-schema-261>"
+            "x-parser-schema-id": "<anonymous-schema-276>"
           },
           "x-parser-unique-object-id": "sync_down",
           "x-parser-message-name": "sync_down"
@@ -2861,17 +3030,17 @@
                 "enum": [
                   "connected"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-265>"
+                "x-parser-schema-id": "<anonymous-schema-280>"
               },
               "device_id": {
                 "type": "integer",
                 "description": "The device that connected",
-                "x-parser-schema-id": "<anonymous-schema-266>"
+                "x-parser-schema-id": "<anonymous-schema-281>"
               },
               "server": {
                 "type": "string",
                 "description": "The MQTT broker host the device connected to. If different from the app's current broker, the app should reconnect to this server for that device.",
-                "x-parser-schema-id": "<anonymous-schema-267>"
+                "x-parser-schema-id": "<anonymous-schema-282>"
               }
             },
             "required": [
@@ -2883,7 +3052,7 @@
               "device_id": 12345,
               "server": "myflameboss.com"
             },
-            "x-parser-schema-id": "<anonymous-schema-264>"
+            "x-parser-schema-id": "<anonymous-schema-279>"
           },
           "x-parser-unique-object-id": "connected_down",
           "x-parser-message-name": "connected_down"
@@ -2903,7 +3072,7 @@
                 "enum": [
                   "connected"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-269>"
+                "x-parser-schema-id": "<anonymous-schema-284>"
               }
             },
             "required": [
@@ -2912,7 +3081,7 @@
             "example": {
               "name": "connected"
             },
-            "x-parser-schema-id": "<anonymous-schema-268>"
+            "x-parser-schema-id": "<anonymous-schema-283>"
           },
           "x-parser-unique-object-id": "connected_up",
           "x-parser-message-name": "connected_up"
@@ -2933,7 +3102,7 @@
                 "enum": [
                   "cook_note"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-271>"
+                "x-parser-schema-id": "<anonymous-schema-286>"
               },
               "action": {
                 "type": "string",
@@ -2942,17 +3111,17 @@
                   "updated",
                   "deleted"
                 ],
-                "x-parser-schema-id": "<anonymous-schema-272>"
+                "x-parser-schema-id": "<anonymous-schema-287>"
               },
               "id": {
                 "type": "integer",
                 "description": "The cook note ID",
-                "x-parser-schema-id": "<anonymous-schema-273>"
+                "x-parser-schema-id": "<anonymous-schema-288>"
               },
               "cook_id": {
                 "type": "integer",
                 "description": "The cook this note belongs to",
-                "x-parser-schema-id": "<anonymous-schema-274>"
+                "x-parser-schema-id": "<anonymous-schema-289>"
               }
             },
             "required": [
@@ -2967,7 +3136,7 @@
               "id": 42,
               "cook_id": 12345
             },
-            "x-parser-schema-id": "<anonymous-schema-270>"
+            "x-parser-schema-id": "<anonymous-schema-285>"
           },
           "x-parser-unique-object-id": "cook_note_down",
           "x-parser-message-name": "cook_note_down"
@@ -3367,6 +3536,32 @@
       ],
       "x-parser-unique-object-id": "wifi_cx uplink"
     },
+    "wifi_module uplink": {
+      "action": "receive",
+      "channel": "$ref:$.channels.flameboss/{deviceId}/send/data",
+      "messages": [
+        "$ref:$.channels.flameboss/{deviceId}/send/data.messages.wifi_module_up"
+      ],
+      "tags": [
+        {
+          "name": "Network"
+        }
+      ],
+      "x-parser-unique-object-id": "wifi_module uplink"
+    },
+    "wifi_module downlink": {
+      "action": "send",
+      "channel": "$ref:$.channels.flameboss/{deviceId}/recv",
+      "messages": [
+        "$ref:$.channels.flameboss/{deviceId}/recv.messages.wifi_module_down"
+      ],
+      "tags": [
+        {
+          "name": "Network"
+        }
+      ],
+      "x-parser-unique-object-id": "wifi_module downlink"
+    },
     "wifi_scan uplink": {
       "action": "receive",
       "channel": "$ref:$.channels.flameboss/{deviceId}/send/data",
@@ -3470,6 +3665,32 @@
         }
       ],
       "x-parser-unique-object-id": "mqtt downlink"
+    },
+    "broker uplink": {
+      "action": "receive",
+      "channel": "$ref:$.channels.flameboss/{deviceId}/send/data",
+      "messages": [
+        "$ref:$.channels.flameboss/{deviceId}/send/data.messages.broker_up"
+      ],
+      "tags": [
+        {
+          "name": "Network"
+        }
+      ],
+      "x-parser-unique-object-id": "broker uplink"
+    },
+    "broker downlink": {
+      "action": "send",
+      "channel": "$ref:$.channels.flameboss/{deviceId}/recv",
+      "messages": [
+        "$ref:$.channels.flameboss/{deviceId}/recv.messages.broker_down"
+      ],
+      "tags": [
+        {
+          "name": "Network"
+        }
+      ],
+      "x-parser-unique-object-id": "broker downlink"
     },
     "ip uplink": {
       "action": "receive",
@@ -3817,12 +4038,15 @@
       "wifi_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.wifi_up",
       "wifi_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.wifi_down",
       "wifi_cx_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.wifi_cx_up",
+      "wifi_module_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.wifi_module_up",
       "local_access_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.local_access_up",
       "local_access_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.local_access_down",
       "mqtt_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.mqtt_up",
       "mqtt_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.mqtt_down",
       "ble_cx_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.ble_cx_up",
       "ble_cx_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.ble_cx_down",
+      "broker_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.broker_up",
+      "broker_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.broker_down",
       "meat_alarm_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.meat_alarm_up",
       "meat_alarm_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.meat_alarm_down",
       "set_temp_limits_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.set_temp_limits_up",
@@ -3852,6 +4076,7 @@
       "device_overtemp_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.device_overtemp_up",
       "wifi_scan_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.wifi_scan_up",
       "wifi_scan_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.wifi_scan_down",
+      "wifi_module_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.wifi_module_down",
       "timer_up": "$ref:$.channels.flameboss/{deviceId}/send/data.messages.timer_up",
       "timer_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.timer_down",
       "reset_down": "$ref:$.channels.flameboss/{deviceId}/recv.messages.reset_down",

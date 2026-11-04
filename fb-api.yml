@@ -2232,7 +2232,13 @@ components:
     open_pit_up:
       tags:
         - name: Fan Control
-      summary: Open pit configuration
+      summary: Open pit configuration and status
+      description: >-
+        Published when the controller detects the pit opened or closed, when the
+        settings change, and on every connect. The server notifies users when
+        open changes from the state it last stored, so repeats are harmless.
+        Older Flame Boss firmware sends only max_pause, and reports the lid with
+        the deprecated opened and closed uplinks instead of open.
       payload:
         type: object
         properties:
@@ -2242,15 +2248,28 @@ components:
           enabled:
             type: boolean
             description: Default is true if omitted
+          drop:
+            type: integer
+            description: Pit fall from its recent peak that signals open, in tenths of a degree C
+          window:
+            type: integer
+            description: Seconds within which the pit must fall by drop
           max_pause:
             type: integer
             description: Max open pause time in seconds
+          open:
+            type: boolean
+            description: Whether the pit is open, with the fan paused
         required:
           - name
           - max_pause
         example:
           name: "open_pit"
-          max_pause: 300
+          enabled: true
+          drop: 30
+          window: 10
+          max_pause: 120
+          open: false
 
     open_pit_down:
       tags:
