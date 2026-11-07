@@ -68,7 +68,11 @@ info:
 
     ## Bluetooth
 
-    Targets send and receive the same JSON messages over Bluetooth as they do over the network and MQTT.
+    Targets send and receive the same JSON messages over Bluetooth as they do over the network and MQTT, with one exception: the messages tagged **Bluetooth** in this document exist only on that transport. `auth` is rejected outright when it arrives over MQTT; `ping`, `pong` and `mqtt_cx` are sent and answered only on a Bluetooth link.
+
+    A Bluetooth connection has to authenticate with `auth` before the target will accept most downlinks. Until it does, the target accepts `auth` and `id` (plus one or two more that vary by target) and drops the link on anything else.
+
+    The target sends `ping` about every 5 seconds and drops a connection that has sent it nothing for 15 seconds, so answer each one with `pong`.
 
     Add a newline after every JSON object when both sending to and receiving from the target.
 
@@ -206,6 +210,12 @@ channels:
         $ref: '#/components/messages/timer_up'
       state_up:
         $ref: '#/components/messages/state_up'
+      auth_up:
+        $ref: '#/components/messages/auth_up'
+      ping_up:
+        $ref: '#/components/messages/ping_up'
+      mqtt_cx_up:
+        $ref: '#/components/messages/mqtt_cx_up'
 
   flameboss/{deviceId}/recv:
     summary: Messages sent to the target (downlinks)
@@ -276,6 +286,12 @@ channels:
         $ref: '#/components/messages/alarm_ack_down'
       sync_down:
         $ref: '#/components/messages/sync_down'
+      auth_down:
+        $ref: '#/components/messages/auth_down'
+      pong_down:
+        $ref: '#/components/messages/pong_down'
+      mqtt_cx_down:
+        $ref: '#/components/messages/mqtt_cx_down'
 
   user/{userId}/recv:
     summary: Messages between the server and mobile apps
@@ -296,6 +312,56 @@ channels:
         $ref: '#/components/messages/cook_note_down'
 
 operations:
+  # Bluetooth
+  "auth uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/auth_up'
+    tags:
+      - name: Bluetooth
+  "auth downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/auth_down'
+    tags:
+      - name: Bluetooth
+  "ping uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/ping_up'
+    tags:
+      - name: Bluetooth
+  "pong downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/pong_down'
+    tags:
+      - name: Bluetooth
+  "mqtt_cx uplink":
+    action: receive
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/mqtt_cx_up'
+    tags:
+      - name: Bluetooth
+  "mqtt_cx downlink":
+    action: send
+    channel:
+      $ref: '#/channels/flameboss~1{deviceId}~1recv'
+    messages:
+      - $ref: '#/channels/flameboss~1{deviceId}~1recv/messages/mqtt_cx_down'
+    tags:
+      - name: Bluetooth
+
   # Cooking
   "temps uplink":
     action: receive
@@ -849,6 +915,167 @@ operations:
 
 components:
   messages:
+    auth_up:
+      tags:
+        - name: Bluetooth
+      summary: Bluetooth authentication state
+      description: |-
+        Bluetooth only. The target rejects an auth downlink that arrives over
+        MQTT, and never sends this uplink on an MQTT topic.
+
+        Sent in reply to an auth downlink. The pin property carries the state
+        as well as the value:
+
+        - `0`: no PIN is set on the target. The next auth downlink that
+          carries a pin sets it.
+        - `1`: a PIN is set and this Bluetooth connection is not
+          authenticated. This is also the reply to a wrong PIN.
+        - any other value: the connection is authenticated, and the value is
+          the target's PIN.
+
+        Until a connection is authenticated the target accepts only a short
+        list of downlinks. auth and id are on that list for every target;
+        the rest of it varies by target. Anything else makes the target drop
+        the Bluetooth link.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [auth]
+          pin:
+            type: integer
+            description: |-
+              0 when no PIN is set, 1 when not authenticated, otherwise the
+              target's PIN.
+        required:
+          - name
+          - pin
+        example:
+          name: "auth"
+          pin: 1
+
+    auth_down:
+      tags:
+        - name: Bluetooth
+      summary: Authenticate a Bluetooth connection, or request the current state
+      description: |-
+        Bluetooth only. A target that receives this over MQTT ignores it.
+
+        Omit pin to request the current authentication state.
+
+        Send the target's PIN to authenticate. When the target has no PIN set
+        (the auth uplink reports pin 0), or when this connection is already
+        authenticated, the pin in this message is stored as the target's new
+        PIN.
+
+        After more than 3 failed attempts the target stops replying to auth.
+        Reconnect to try again.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [auth]
+          pin:
+            type: integer
+            description: |-
+              The target's PIN, shown on its settings screen.
+              Omit to request the current authentication state.
+        required:
+          - name
+        example:
+          name: "auth"
+          pin: 1234
+
+    ping_up:
+      tags:
+        - name: Bluetooth
+      summary: Keepalive sent by the target over Bluetooth
+      description: |-
+        The target sends this on its own roughly every 5 seconds while a
+        Bluetooth connection is open. Reply with pong.
+
+        The target drops a Bluetooth connection that has sent it nothing for
+        15 seconds, so an app that never answers a ping is disconnected and
+        has to rediscover and reconnect.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [ping]
+        required:
+          - name
+        example:
+          name: "ping"
+
+    pong_down:
+      tags:
+        - name: Bluetooth
+      summary: Reply to a ping
+      description: |-
+        Send in reply to a ping uplink. The target does nothing with the
+        contents; receiving any message is what resets its idle timer, and
+        pong is the message that carries no other meaning. Apps send at most
+        one pong every 2 seconds.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [pong]
+        required:
+          - name
+        example:
+          name: "pong"
+
+    mqtt_cx_up:
+      tags:
+        - name: Bluetooth
+      summary: Whether the target is connected to the MQTT broker
+      description: |-
+        Reports whether the target currently has a connection to the cloud
+        MQTT broker.
+
+        Useful over Bluetooth, where it is how an app learns that the target
+        reached the cloud after being given WiFi credentials. On an MQTT
+        topic it says nothing the subscriber does not already know, and not
+        every target sends it there.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [mqtt_cx]
+          connected:
+            type: boolean
+            description: True when the target has a live connection to the broker
+        required:
+          - name
+          - connected
+        example:
+          name: "mqtt_cx"
+          connected: true
+
+    mqtt_cx_down:
+      tags:
+        - name: Bluetooth
+      summary: Request MQTT connection status
+      description: |-
+        A request only; there is nothing to set. The target replies with an
+        mqtt_cx uplink.
+      payload:
+        type: object
+        properties:
+          name:
+            type: string
+            enum: [mqtt_cx]
+        required:
+          - name
+        example:
+          name: "mqtt_cx"
+
     sync_down:
       tags:
         - name: Device
@@ -1029,16 +1256,26 @@ components:
           name:
             type: string
             enum: [dns]
+          dhcp:
+            type: boolean
+            description: |-
+              True when the addresses came from DHCP, false when they were
+              configured by the user. Omitted by firmware that predates the
+              field (fb450), so treat a missing value as unknown rather than
+              as false.
           ips:
             type: array
             items:
               type: string
-            description: Array of strings of IP addresses, up to 2
+            description: |-
+              Array of strings of IP addresses, up to 2.
+              An address that is not set is reported as "0.0.0.0".
         required:
           - name
           - ips
         example:
           name: "dns"
+          dhcp: true
           ips: ["192.168.1.100", "8.8.8.8"]
 
     dns_down:
@@ -1051,17 +1288,23 @@ components:
           name:
             type: string
             enum: [dns]
+          dhcp:
+            type: boolean
+            description: |-
+              True to take the DNS addresses from DHCP, false to use the
+              addresses given in ips.
           ips:
             type: array
             items:
               type: string
             description: |-
               Array of strings of IP addresses, up to 2.
-              Omit to request current DNS configuration.
+              Omit the whole payload body to request current DNS configuration.
         required:
           - name
         example:
           name: "dns"
+          dhcp: false
           ips: ["192.168.1.100"]
 
     ip_up:
@@ -1112,24 +1355,23 @@ components:
           mode:
             type: string
             enum: [manual, dhcp]
+            description: |-
+              Omit mode and every address field to request the current IP
+              configuration. Send mode dhcp on its own to switch to DHCP.
           ip:
             type: string
-            description: IP address
+            description: IP address. Required when mode is manual.
           netmask:
             type: string
-            description: Netmask
+            description: Netmask. Required when mode is manual.
           gateway:
             type: string
-            description: Gateway IP address
+            description: Gateway IP address. Required when mode is manual.
         required:
           - name
-          - mode
-          - ip
-          - netmask
-          - gateway
         example:
           name: "ip"
-          mode: "dhcp"
+          mode: "manual"
           ip: "192.168.1.100"
           netmask: "255.255.255.0"
           gateway: "192.168.1.1"
@@ -1278,6 +1520,12 @@ components:
           name:
             type: string
             enum: [wifi_cx]
+          index:
+            type: integer
+            description: |-
+              Index of the configured access point the target is using, matching
+              the index in the wifi message. Omitted by targets that do not
+              report it (fb450) and when no access point is configured.
           connected:
             type: boolean
             description: WiFi is connected to an access point. Omitted on single-radio targets where receiving this message implies connected.
@@ -1291,6 +1539,8 @@ components:
           - name
         example:
           name: "wifi_cx"
+          index: 0
+          connected: true
           rssi: -55
           code: 0
 
@@ -1388,41 +1638,42 @@ components:
           host:
             type: string
             description: MQTT broker hostname
-          ip:
-            type: string
-            description: MQTT broker IP address
+          ips:
+            type: array
+            items:
+              type: string
+            description: |-
+              Resolved IP addresses of the broker. Sent in place of a single
+              ip: no target sends an ip property.
           port:
             type: integer
-            description: MQTT broker port
+            description: |-
+              MQTT broker port, reported as the port actually in use rather
+              than the configured one. Not sent by every target (fb550 omits
+              it).
           tls:
             type: boolean
             description: TLS enabled
           username:
             type: string
-            description: MQTT username
+            description: MQTT username. Not sent by every target.
           local_en:
             type: boolean
-            description: Local MQTT broker enabled
+            description: Local MQTT broker enabled. Not sent by every target.
           keepalive:
             type: integer
             description: MQTT keepalive interval in seconds
         required:
           - name
           - host
-          - ip
-          - port
-          - tls
-          - username
-          - local_en
-          - keepalive
         example:
           name: "mqtt"
           host: "myflameboss.com"
-          ip: "1.2.3.4"
+          ips: ["1.2.3.4"]
           port: 8883
           tls: true
-          username: "fb_12345"
-          local_en: true
+          username: "D-12345"
+          keepalive: 15
           keepalive: 60
 
     mqtt_down:
