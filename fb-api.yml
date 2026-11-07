@@ -1898,19 +1898,20 @@ components:
             type: boolean
           range:
             type: integer
-          status:
+          state:
             type: string
-            enum: [inactive, active, alerting]
+            enum: [disabled, inactive, active, alerting]
+            description: Read-only. "disabled" is reported whenever enabled is false, so it is the state a client sees by default.
         required:
           - name
           - enabled
           - range
-          - status
+          - state
         example:
           name: "pit_alarm"
           enabled: true
           range: 25
-          status: inactive
+          state: inactive
 
     pit_alarm_down:
       tags:
