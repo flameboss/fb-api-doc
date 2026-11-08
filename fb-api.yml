@@ -2571,6 +2571,13 @@ components:
 
         Several entries may share an ssid, one per BSSID. The bssid is what
         tells them apart.
+
+        Only networks the scan actually found are reported. A target also
+        holds the networks it is configured to join, and one of those that is
+        out of range is not a scan result and is left out; a client reads its
+        configured networks from the wifi messages instead. A target that
+        found nothing therefore sends no wifi_scan messages at all, so a
+        client waiting for the last index should also time out.
       payload:
         type: object
         properties:
