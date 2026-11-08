@@ -1160,6 +1160,16 @@ components:
       tags:
         - name: Alarms
       summary: Reset and silence any active alert including for pit alert, meat alert, or timer alert
+      description: |-
+        The target answers with a sound uplink, whose status field says
+        whether it is still making a noise. There is no alarm_ack uplink: the
+        downlink can touch the pit alert, the meat alerts and the timer at
+        once, and no single message describes all of them. Nor does the
+        target necessarily publish the new state of each alert it reset, so a
+        client that needs those should ask for them.
+
+        Firmware written before this answers nothing at all, so do not block
+        on a reply from an older target.
       payload:
         type: object
         properties:
