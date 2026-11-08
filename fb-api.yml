@@ -2556,7 +2556,21 @@ components:
       tags:
         - name: Network
       summary: WiFi scan results
-      description: This uplink is published at startup, and in response to wifi_scan downlink, to show results of discovered access points, one message for each AP discovered.
+      description: |-
+        This uplink is published at startup, and in response to wifi_scan
+        downlink, to show results of discovered access points, one message
+        for each AP discovered.
+
+        The list is not plain strongest-first. The target puts the networks
+        it is configured to join at the front, in the order it holds them and
+        whatever their signal, and sorts everything after them by descending
+        rssi. A client that wants signal order throughout must sort for
+        itself. Usually the two coincide, because a target tends to sit near
+        the network it is configured for, so a client that assumes signal
+        order will mostly be right and occasionally wrong.
+
+        Several entries may share an ssid, one per BSSID. The bssid is what
+        tells them apart.
       payload:
         type: object
         properties:
@@ -2574,7 +2588,12 @@ components:
             description: the ssid of the access point
           rssi:
             type: integer
-            description: rssi x 10
+            description: |-
+              Signal strength in dBm, as the target reports it: a small
+              negative number, roughly -20 near the access point to -95 at
+              the edge of range. This said "rssi x 10" with an example of
+              -550, which no target has ever sent -- all of them publish the
+              value straight from an int8_t, which could not hold -550.
           bssid:
             type: string
             description: optional, bssid of AP
@@ -2589,7 +2608,7 @@ components:
           index: 0
           count: 5
           ssid: "fb"
-          rssi: -550
+          rssi: -55
 
     wifi_scan_down:
       tags:
