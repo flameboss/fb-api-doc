@@ -929,9 +929,12 @@ components:
         - `0`: no PIN is set on the target. The next auth downlink that
           carries a pin sets it.
         - `1`: a PIN is set and this Bluetooth connection is not
-          authenticated. This is also the reply to a wrong PIN.
+          authenticated. This is also the reply to a wrong PIN, and to any
+          PIN sent while the target is refusing attempts.
         - any other value: the connection is authenticated, and the value is
-          the target's PIN.
+          the target's PIN. An authenticated connection is told this whatever
+          pin it sent, so a client whose stored PIN disagrees should take the
+          target's.
 
         Until a connection is authenticated the target accepts only a short
         list of downlinks. auth and id are on that list for every target;
@@ -964,13 +967,28 @@ components:
 
         Omit pin to request the current authentication state.
 
-        Send the target's PIN to authenticate. When the target has no PIN set
-        (the auth uplink reports pin 0), or when this connection is already
-        authenticated, the pin in this message is stored as the target's new
-        PIN.
+        Send the target's PIN to authenticate. On a connection that is
+        already authenticated this is only a question: the target reports its
+        own PIN and ignores the value sent.
 
-        After more than 3 failed attempts the target stops replying to auth.
-        Reconnect to try again.
+        The PIN is stored rather than checked in two cases:
+
+        - The target has no PIN set, so the auth uplink reports pin 0. The
+          pin in this message becomes the target's PIN. This is how a client
+          pairs with a target.
+        - The connection is authenticated and the pin is 0. That unpairs the
+          target and drops the connection, and is what a client sends when it
+          removes the target. Nothing answers it.
+
+        Firmware written before this rule stores any PIN sent on an
+        authenticated connection, silently changing it. Do not rely on either
+        behaviour to change a PIN: unpair and pair again.
+
+        Wrong PINs count against a limit, after which the target refuses even
+        the right PIN. How many it allows, and how the refusal ends, varies by
+        target: some clear it after a quiet period, some not before the next
+        power cycle. Older firmware stops replying to auth at that point
+        instead of refusing.
       payload:
         type: object
         properties:
