@@ -975,7 +975,9 @@ components:
 
         - The target has no PIN set, so the auth uplink reports pin 0. The
           pin in this message becomes the target's PIN. This is how a client
-          pairs with a target.
+          pairs with a target. The pin must be 2 or more, since the uplink
+          spends 0 and 1 on state; a target that refuses one answers with
+          pin 0 and stays unpaired.
         - The connection is authenticated and the pin is 0. That unpairs the
           target and drops the connection, and is what a client sends when it
           removes the target. Nothing answers it.
