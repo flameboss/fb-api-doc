@@ -1247,6 +1247,15 @@ components:
       tags:
         - name: Device
       summary: Set device time or request device time
+      description: |-
+        Omit epoch to ask the target what time it has. Send epoch, and
+        optionally ms, to set it.
+
+        Either way the target answers with a time uplink, and the answer
+        carries the clock the target ended up with rather than an echo of
+        what was sent, so a client should take the reply over its own value.
+        Firmware written before this answered only the bare request: a set
+        went unacknowledged, so do not block on a reply from an older target.
       payload:
         type: object
         properties:
