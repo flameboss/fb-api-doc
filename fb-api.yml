@@ -180,10 +180,6 @@ channels:
         $ref: '#/components/messages/dc_input_up'
       meat_alarm_triggered_up:
         $ref: '#/components/messages/meat_alarm_triggered_up'
-      pit_alarm_active_up:
-        $ref: '#/components/messages/pit_alarm_active_up'
-      pit_alarm_triggered_up:
-        $ref: '#/components/messages/pit_alarm_triggered_up'
       vent_advice_up:
         $ref: '#/components/messages/vent_advice_up'
       opened_up:
@@ -491,22 +487,6 @@ operations:
       $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
     messages:
       - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/meat_alarm_triggered_up'
-    tags:
-      - name: Alarms
-  "pit_alarm_active uplink":
-    action: receive
-    channel:
-      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
-    messages:
-      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/pit_alarm_active_up'
-    tags:
-      - name: Alarms
-  "pit_alarm_triggered uplink":
-    action: receive
-    channel:
-      $ref: '#/channels/flameboss~1{deviceId}~1send~1data'
-    messages:
-      - $ref: '#/channels/flameboss~1{deviceId}~1send~1data/messages/pit_alarm_triggered_up'
     tags:
       - name: Alarms
   "vent_advice uplink":
@@ -1926,7 +1906,18 @@ components:
     pit_alarm_up:
       tags:
         - name: Alarms
-      summary: Pit alarm configuration
+      summary: Pit alarm configuration and status
+      description: |-
+        enabled and range are the configuration; status is what the alarm is
+        doing. A target publishes this whenever the status changes, which is
+        how a client learns the alarm went active or started alerting --
+        there are no separate messages for those.
+
+        An alarm that is switched off reports status "inactive", not a
+        status of its own: whether it is switched on is the enabled
+        property. "inactive" therefore covers both off and on-but-waiting,
+        which is the same thing from a client's side -- nothing is being
+        watched for yet.
       payload:
         type: object
         properties:
@@ -1937,20 +1928,25 @@ components:
             type: boolean
           range:
             type: integer
-          state:
+          status:
             type: string
-            enum: [disabled, inactive, active, alerting]
-            description: Read-only. "disabled" is reported whenever enabled is false, so it is the state a client sees by default.
+            enum: [inactive, active, alerting]
+            description: |-
+              Read-only. "inactive" while the alarm is off, and while it is
+              on but the pit has not yet come within range of the set temp.
+              "active" once it has and the alarm is watching. "alerting"
+              when the pit has gone too far from the set temp and the target
+              is alarming, until it is acknowledged.
         required:
           - name
           - enabled
           - range
-          - state
+          - status
         example:
           name: "pit_alarm"
           enabled: true
           range: 25
-          state: inactive
+          status: inactive
 
     pit_alarm_down:
       tags:
@@ -2437,38 +2433,6 @@ components:
         example:
           name: "meat_alarm_triggered"
           sensor: 1
-
-    pit_alarm_active_up:
-      tags:
-        - name: Alarms
-      summary: Pit alarm active
-      description: This uplink is published when pit alarm becomes active after being enabled. (It becomes active when the pit temp becomes nearly at the set temp.
-      payload:
-        type: object
-        properties:
-          name:
-            type: string
-            enum: [pit_alarm_active]
-        required:
-          - name
-        example:
-          name: "pit_alarm_active"
-
-    pit_alarm_triggered_up:
-      tags:
-        - name: Alarms
-      summary: Pit alarm triggered
-      description: This uplink is published when the pit temp goes out of range set by pit alarm if the pit alarm is active.
-      payload:
-        type: object
-        properties:
-          name:
-            type: string
-            enum: [pit_alarm_triggered]
-        required:
-          - name
-        example:
-          name: "pit_alarm_triggered"
 
     vent_advice_up:
       tags:
